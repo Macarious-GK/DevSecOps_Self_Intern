@@ -1,3 +1,4 @@
 /APP_NodeJS_Express/node_modules
 /APP_NodeJS_Express/.env
+/APP_NodeJS_Express/package-lock.json
 /Vagrant/.vagrant
