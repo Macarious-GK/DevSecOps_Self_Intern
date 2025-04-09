@@ -1,0 +1,35 @@
+Vagrant.configure("2") do |config|
+    # Define the Ansible Control Node (host)
+    config.vm.define "mongo" do |mongo|
+      mongo.vm.box = "ubuntu/jammy64"
+      mongo.vm.box_version = "20241002.0.0"
+      mongo.vm.network "private_network", type: "dhcp"
+      mongo.vm.hostname = "mongo"
+      mongo.vm.network "public_network", ip: "192.168.1.200", bridge: "WiFi"
+
+  
+      mongo.vm.provider "virtualbox" do |vb|
+        vb.name = "mongo"     # Set the name of the VM
+        vb.gui = false                     # Disable GUI mode
+        vb.memory = "512"                 # Memory allocation (optional)
+        vb.cpus = 1                        # Number of CPU cores (optional)
+      end
+  
+      # Provisioning the mongo node with Ansible
+      mongo.vm.provision "shell", inline: <<-SHELL
+      # Update and upgrade the system
+      sudo apt update -y && sudo apt upgrade -y
+
+      # Install curl if it's not already installed
+      sudo apt install curl -y
+
+
+    SHELL
+
+  
+
+    end
+  
+    
+  end
+  
