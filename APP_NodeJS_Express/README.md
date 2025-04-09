@@ -3,6 +3,7 @@
 This is a **Node.js** web application built with **Express** and **MongoDB**. It includes full **CRUD operations** for two primary collections: `users` and `posts`. The app also includes an **authentication system** with support for environment-based configuration.
 
 ---
+![APP](/Images/app.png)
 
 ## 🚀 Features
 
