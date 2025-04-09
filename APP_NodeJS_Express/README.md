@@ -1,0 +1,2 @@
+this is a nodejs app with express that use mongoDB as database it has two main taples users and posts that we can perforem full crud operation of the posts and users for authentication page
+this APP use env varibles: PORT, JWT_SECRET and MONGODB_URI 
