@@ -84,6 +84,6 @@ MONGODB_URI=mongodb://localhost:27017/your-db-name
 Run the following command to start the server:
 
 ```bash
-npm run dev
-npm start
+npm run dev # for dev stage
+npm start # for prod stage
 ```
