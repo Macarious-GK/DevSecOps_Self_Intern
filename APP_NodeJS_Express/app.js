@@ -27,7 +27,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI
+    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/test'
   }),
   //cookie: { maxAge: new Date ( Date.now() + (3600000) ) } 
 }));
@@ -46,6 +46,6 @@ app.locals.isActiveRoute = isActiveRoute;
 app.use('/', require('./server/routes/main'));
 app.use('/', require('./server/routes/admin'));
 
-app.listen(PORT, ()=> {
+app.listen(PORT,'0.0.0.0' ,()=> {
   console.log(`App listening on port ${PORT}`);
 });
