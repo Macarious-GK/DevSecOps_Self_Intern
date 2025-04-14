@@ -14,20 +14,20 @@ services:
     networks:
       - app-network
 
-mongodb:
-  image: mongo:4
-  container_name: mongodb
-  ports:
-    - "27017:27017"
-  volumes:
-    - mongodb_data:/data/db
-  networks:
-    - app-network
-  healthcheck:
-    test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
+  mongodb:
+    image: mongo:4
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongodb_data:
