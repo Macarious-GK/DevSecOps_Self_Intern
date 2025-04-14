@@ -29,6 +29,7 @@ services:
 
 volumes:
   mongodb_data:
+    name: mongodb_data
 
 networks:
   app-network:
