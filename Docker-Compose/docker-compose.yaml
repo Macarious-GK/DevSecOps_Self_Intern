@@ -4,6 +4,8 @@ services:
   proxy:
     image: nginx:latest
     container_name: nginx_proxy
+    depends_on:
+      - app
     ports:
       - "80:80"
     volumes:
