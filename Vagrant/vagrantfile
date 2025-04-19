@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
       mongo.vm.provider "virtualbox" do |vb|
         vb.name = "mongo"     # Set the name of the VM
         vb.gui = false                     # Disable GUI mode
-        vb.memory = "1536"                 # Memory allocation (optional)
+        vb.memory = "2048"                 # Memory allocation (optional)
         vb.cpus = 1                        # Number of CPU cores (optional)
       end
   

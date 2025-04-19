@@ -7,6 +7,7 @@ const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const client = require('prom-client');
 
 const connectDB = require('./server/config/db');
 const { isActiveRoute } = require('./server/helpers/routeHelpers');
@@ -16,6 +17,15 @@ const PORT = process.env.PORT || 5000;
    
 // Connect to DB
 connectDB();
+
+// Collect Metrics
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics();
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
