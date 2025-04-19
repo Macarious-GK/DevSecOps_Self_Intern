@@ -39,7 +39,6 @@ services:
       - mongodb
     networks:
       - Backend
-      - Monitor
   
   prometheus:
     image: prom/prometheus:latest
@@ -48,7 +47,11 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - mongodb_exporter
+      - app
     networks:
+      - Backend
       - Monitor
   
   grafana:
