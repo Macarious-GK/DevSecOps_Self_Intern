@@ -77,6 +77,6 @@ networks:
     name: Backend
     driver: bridge
 
-  Monitor_Front:
+  Monitor:
     name: Monitor
     driver: bridge
