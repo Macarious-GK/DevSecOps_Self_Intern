@@ -60,8 +60,11 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./dashboards:/var/lib/grafana/dashboards
-      - ./datasources:/etc/grafana/datasources
+      - ./datasources:/etc/grafana/provisioning/datasources/
+      - ./dashboards.yaml:/etc/grafana/provisioning/dashboards/
+      - ./dashboards:/var/lib/grafana/dashboards      
+      # - ./datasources.yaml /etc/grafana/provisioning/datasources/
+
     depends_on:
       - prometheus
     networks:
