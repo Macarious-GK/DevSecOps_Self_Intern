@@ -64,12 +64,6 @@ services:
       - ./dashboards:/var/lib/grafana/dashboards/          # Dashboards folder
       - ./provisioning:/etc/grafana/provisioning            # Provisioning configuration (including dashboards.yaml)
 
-    # volumes:
-    #   - ./datasources:/etc/grafana/provisioning/datasources/
-    #   - ./dashboards.yaml:/etc/grafana/provisioning/dashboards
-    #   - ./dashboards:/var/lib/grafana/dashboards/     
-    #   # - ./datasources.yaml /etc/grafana/provisioning/datasources/
-
     depends_on:
       - prometheus
     networks:
