@@ -60,7 +60,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./datasources:/etc/grafana/provisioning/datasources  # Datasources configuration
+      # - ./datasources:/etc/grafana/provisioning/datasources  # Datasources configuration
       - ./dashboards:/var/lib/grafana/dashboards/          # Dashboards folder
       - ./provisioning:/etc/grafana/provisioning            # Provisioning configuration (including dashboards.yaml)
 

@@ -1,8 +1,9 @@
 apiVersion: 1
 
 providers:
-  - name: 'Kubernetes Dashboards'
-    folder: 'Kubernetes'
+  - name: 'NodeJS & MongoDB Dashboard'
+    orgId: 1
+    folder: 'nodejs-mongodb-dashboard'
     type: file
     options:
       path: /var/lib/grafana/dashboards
