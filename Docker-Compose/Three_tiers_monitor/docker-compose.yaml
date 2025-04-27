@@ -34,7 +34,9 @@ services:
     image: bitnami/mongodb-exporter:latest
     container_name: mongodb_exporter
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_URI=mongodb://mongodb:27017/admin
+    ports:
+      - "9216:9216"
     depends_on:
       - mongodb
     networks:

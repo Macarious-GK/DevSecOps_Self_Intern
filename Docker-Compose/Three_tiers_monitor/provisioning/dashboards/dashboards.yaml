@@ -7,15 +7,11 @@ providers:
     type: file
     options:
       path: /var/lib/grafana/dashboards
-
-# apiVersion: 1
-
-# providers:
-#   - name: 'default'
-#     orgId: 1
-#     folder: ''
-#     type: file
-#     disableDeletion: false
-#     updateIntervalSeconds: 5
-#     options:
-#       path: /var/lib/grafana/dashboards
+    disableDeletion: true  # Prevent deletion from the Grafana UI in production
+    updateIntervalSeconds: 600  # Less frequent update checks for stability (every 10 minutes)
+    editable: false  # Disable editing of dashboards from Grafana UI in production for security
+    # Added for enhanced security and performance
+    jsonData:
+      timeInterval: 30s  # Optimized interval for Prometheus metrics resolution
+      maxMetricsPerQuery: 1000  # Avoid large queries that could impact performance
+    secureJsonData: {}

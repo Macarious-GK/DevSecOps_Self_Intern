@@ -6,3 +6,16 @@ datasources:
     access: proxy
     url: http://prometheus:9090
     isDefault: true
+    editable: true # Set to false in production for security
+    jsonData:
+      timeInterval: 30s
+      tlsSkipVerify: true # Set to false in production for security
+      tlsAuth: false # Set to true in production for security
+      tlsAuthWithCACert: false # Set to true in production for security
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.44.0
+      cacheLevel: 'High'
+      disableRecordingRules: false
+      incrementalQueryOverlapWindow: 10m
