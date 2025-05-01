@@ -25,8 +25,13 @@ services:
   mongodb_exporter:
     image: bitnami/mongodb-exporter:latest
     container_name: mongodb_exporter
+    # environment:
+    #   - MONGODB_URI=mongodb://test:testing@mongodb:27017/admin
     environment:
-      - MONGODB_URI=mongodb://test:testing@mongodb:27017/admin
+        - MONGODB_URI=mongodb://test:testing@mongodb:27017/admin
+    command:
+      - '--collect-all'
+
     ports:
       - "9216:9216"
     depends_on:
