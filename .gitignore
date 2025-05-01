@@ -1,3 +1,3 @@
-/APP_NodeJS_Express/node_modules
-/APP_NodeJS_Express/.env
+/app/src/node_modules
+/app/src/.env
 /Vagrant/.vagrant
