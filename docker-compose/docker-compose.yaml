@@ -22,6 +22,15 @@ services:
       - Frontend
       - Backend
 
+  # app_v1:
+  #   image: macarious25siv/project:NodeV1
+  #   container_name: node_app_v1
+  #   depends_on:
+  #     - mongodb
+  #   networks:
+  #     - Frontend
+  #     - Backend
+
   mongodb:
     image: mongo:4
     container_name: mongodb
@@ -48,7 +57,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - mongodb_exporter
       - app
@@ -62,8 +71,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./dashboards:/var/lib/grafana/dashboards/          # Dashboards folder
-      - ./provisioning:/etc/grafana/provisioning            # Provisioning configuration (including dashboards.yaml)
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards/          # Dashboards folder
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning            # Provisioning configuration (including dashboards.yaml)
 
     depends_on:
       - prometheus
