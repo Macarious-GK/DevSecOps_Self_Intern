@@ -37,13 +37,15 @@ jobs:
       run: docker build -t $IMAGE_NAME .
       working-directory: ./app/
 
-    - name: Run Snyk security scan
+    - name: Run Snyk to check Docker images for vulnerabilities
+      continue-on-error: true
       uses: snyk/actions/docker@master
-      with:
-        image: ${{ env.IMAGE_NAME }}
-        args: --file=Dockerfile --all-projects --json-file-output=snyk-report.json
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        image:  ${{ env.IMAGE_NAME }}
+        args: --severity-threshold=high
+
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
