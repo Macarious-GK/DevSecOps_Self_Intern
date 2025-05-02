@@ -14,8 +14,6 @@ services:
   mongodb:
     image: mongo:4
     container_name: mongodb
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d  # Add this line
@@ -25,13 +23,10 @@ services:
   mongodb_exporter:
     image: bitnami/mongodb-exporter:latest
     container_name: mongodb_exporter
-    # environment:
-    #   - MONGODB_URI=mongodb://test:testing@mongodb:27017/admin
     environment:
         - MONGODB_URI=mongodb://test:testing@mongodb:27017/admin
     command:
       - '--collect-all'
-
     ports:
       - "9216:9216"
     depends_on:
