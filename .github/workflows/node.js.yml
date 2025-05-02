@@ -35,13 +35,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - run: pwd
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: Build & push Docker image
         with:
           image: macarious25siv/project
           tags: NodeV5
           registry: docker.io
-          directory: ./app
+          directory: .
           dockerfile: dockerfile
           username: ${{ secrets.Docker_USERNAME }}
           password: ${{ secrets.Docker_PASSWORD }}
