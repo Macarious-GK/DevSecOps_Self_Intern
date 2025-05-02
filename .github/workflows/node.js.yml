@@ -1,22 +1,24 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
 name: Node.js CI
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
+
+env:
+  IMAGE_NAME: macarious25siv/project:${{ github.sha }}
 
 jobs:
-  build:
+  Code build & test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [20.11.0]
-    env:
-      IMAGE_NAME: macarious25siv/project:NodeV5
 
     steps:
     - uses: actions/checkout@v4
@@ -26,27 +28,61 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: './app/src/package-lock.json'
+
     - run: npm ci
       working-directory: ./app/src
     - run: npm run build --if-present
       working-directory: ./app/src
+
+    - name: Run Snyk to check Node.js dependencies
+      uses: snyk/actions/node@v2
+      with:
+        args: --severity-threshold=high
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
     - run: npm test
       working-directory: ./app/src
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: Code build & test
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Cache Docker layers
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
 
     - name: Build Docker image
       run: docker build -t $IMAGE_NAME .
       working-directory: ./app/
 
+  Security gate Snyk for Docker images:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
     - name: Run Snyk to check Docker images for vulnerabilities
-      continue-on-error: true
+      # continue-on-error: true             #Un comment this for production
       uses: snyk/actions/docker@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
         image:  ${{ env.IMAGE_NAME }}
         args: --severity-threshold=high
-
-
+  
+  docker-push:
+    runs-on: ubuntu-latest  
+    needs: [Security gate Snyk for Docker images, docker-build]
+    steps:
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
