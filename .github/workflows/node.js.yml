@@ -43,7 +43,7 @@ jobs:
           tags: NodeV5
           registry: docker.io
           directory: .
-          dockerfile: dockerfile
+          dockerfile: ./app/dockerfile
           username: ${{ secrets.Docker_USERNAME }}
           password: ${{ secrets.Docker_PASSWORD }}
 
