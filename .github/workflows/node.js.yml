@@ -38,10 +38,11 @@ jobs:
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: Build & push Docker image
         with:
-          image: macarious25siv/project:NodeV5
-          tags: 
+          image: macarious25siv/project
+          tags: NodeV5
           registry: docker.io
-          dockerfile: ./app/dockerfile
+          directory: ./app
+          dockerfile: dockerfile
           username: ${{ secrets.Docker_USERNAME }}
           password: ${{ secrets.Docker_PASSWORD }}
 
