@@ -2,7 +2,7 @@
   "__inputs": [
     {
       "name": "Prometheus",
-      "label": "prometheus",
+      "label": "Prometheus",
       "description": "",
       "type": "datasource",
       "pluginId": "prometheus",
@@ -80,7 +80,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Promethues"
+        "uid": "Prometheus"
       },
       "description": "This tells you how long your reads take on average for each collection.",
       "fieldConfig": {
@@ -171,7 +171,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           },
           "editorMode": "code",
           "expr": "rate(mongodb_collstats_latencyStats_reads_latency[5m])\r\n/\r\nrate(mongodb_collstats_latencyStats_reads_ops[5m])\r\n",
@@ -186,7 +186,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Promethues"
+        "uid": "Prometheus"
       },
       "description": "This gives you the rate of bytes written per second over the last 5 minutes",
       "fieldConfig": {
@@ -298,7 +298,7 @@
           "refId": "A",
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           }
         }
       ],
@@ -308,7 +308,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Promethues"
+        "uid": "Prometheus"
       },
       "description": "It tells you which collections are consuming the most operation time.\nGood to spot hotspots.",
       "fieldConfig": {
@@ -389,7 +389,7 @@
           "useBackend": false,
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           }
         }
       ],
@@ -399,7 +399,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Promethues"
+        "uid": "Prometheus"
       },
       "description": "The current size of cache in bytes.",
       "fieldConfig": {
@@ -515,7 +515,7 @@
           "useBackend": false,
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           }
         }
       ],
@@ -525,7 +525,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Promethues"
+        "uid": "Prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -597,13 +597,13 @@
           "refId": "A",
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -617,7 +617,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -631,7 +631,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Promethues"
+            "uid": "Prometheus"
           },
           "editorMode": "code",
           "exemplar": true,
