@@ -41,7 +41,7 @@ jobs:
           image: macarious25siv/project:NodeV5
           tags: 
           registry: docker.io
-          dockerfile: Dockerfile.ci
+          dockerfile: ./app/dockerfile
           username: ${{ secrets.Docker_USERNAME }}
           password: ${{ secrets.Docker_PASSWORD }}
 
