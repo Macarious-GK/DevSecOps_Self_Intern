@@ -15,6 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.11.0]
+        imageName: [macarious25siv/project:NodeV5]
 
     steps:
     - uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
       working-directory: ./app/src
     - run: docker build -t macarious25siv/project:NodeV5 .
       working-directory: ./app/
-    - run:  snyk container test ${config.imageName} --file=Dockerfile --all-projects --json-file-output=snyk-report.json
+    - run:  snyk container test ${{imageName}} --file=Dockerfile --all-projects --json-file-output=snyk-report.json
       working-directory: ./app/
     - run: docker login -u ${{ secrets.Docker_USERNAME }} -p ${{ secrets.Docker_PASSWORD }}
       working-directory: ./app/
