@@ -15,7 +15,8 @@ jobs:
     strategy:
       matrix:
         node-version: [20.11.0]
-        imageName: [macarious25siv/project:NodeV5]
+    env:
+      IMAGE_NAME: macarious25siv/project:NodeV5
 
     steps:
     - uses: actions/checkout@v4
@@ -31,28 +32,24 @@ jobs:
       working-directory: ./app/src
     - run: npm test
       working-directory: ./app/src
-    - run: docker build -t macarious25siv/project:NodeV5 .
-      working-directory: ./app/
-    - run:  snyk container test ${{imageName}} --file=Dockerfile --all-projects --json-file-output=snyk-report.json
-      working-directory: ./app/
-    - run: docker login -u ${{ secrets.Docker_USERNAME }} -p ${{ secrets.Docker_PASSWORD }}
-      working-directory: ./app/
-    - run: docker push macarious25siv/project:NodeV5
 
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - run: pwd
-  #     - uses: mr-smithers-excellent/docker-build-push@v6
-  #       name: Build & push Docker image
-  #       with:
-  #         image: macarious25siv/project
-  #         tags: NodeV5
-  #         registry: docker.io
-  #         directory: .
-  #         dockerfile: ./app/dockerfile
-  #         username: ${{ secrets.Docker_USERNAME }}
-  #         password: ${{ secrets.Docker_PASSWORD }}
+    - name: Build Docker image
+      run: docker build -t $IMAGE_NAME .
+      working-directory: ./app/
 
-        
+    - name: Run Snyk security scan
+      uses: snyk/actions/docker@master
+      with:
+        image: ${{ env.IMAGE_NAME }}
+        args: --file=Dockerfile --all-projects --json-file-output=snyk-report.json
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push Docker image
+      run: docker push $IMAGE_NAME
