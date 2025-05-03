@@ -36,7 +36,7 @@ jobs:
       working-directory: ./app/src
 
     - name: Run Snyk to check Node.js dependencies
-      uses: snyk/actions/node@v2
+      uses: snyk/actions/node@master
       with:
         args: --severity-threshold=high
       env:
