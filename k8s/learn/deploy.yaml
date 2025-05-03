@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project
+  labels:
+    owner: macarious
+    project: nodejs
+    app: nodejs
+    db: mongodb
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: nodejs
+  template:
+    metadata:
+      labels:
+        app: nodejs
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:4
+          ports:
+            - containerPort: 27017
+        - name: nodejs
+          image: macarious25siv/project:NodeV5
+          ports:
+            - containerPort: 5000
