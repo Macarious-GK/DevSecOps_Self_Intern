@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'app/**'
+      - '.github/workflows/node.js.yml'
   pull_request:
     branches: [ "main" ]
     paths:
@@ -14,7 +15,7 @@ env:
   IMAGE_NAME: macarious25siv/project:${{ github.sha }}
 
 jobs:
-  Code build & test:
+  Code_build_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -46,7 +47,7 @@ jobs:
 
   docker-build:
     runs-on: ubuntu-latest
-    needs: Code build & test
+    needs: Code_build_test
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -66,7 +67,7 @@ jobs:
       run: docker build -t $IMAGE_NAME .
       working-directory: ./app/
 
-  Security gate Snyk for Docker images:
+  Security-gate-Snyk-for-Docker-images:
     runs-on: ubuntu-latest
     needs: docker-build
     steps:
@@ -81,7 +82,7 @@ jobs:
   
   docker-push:
     runs-on: ubuntu-latest  
-    needs: [Security gate Snyk for Docker images, docker-build]
+    needs: [Security-gate-Snyk-for-Docker-images, docker-build]
     steps:
     - name: Log in to Docker Hub
       uses: docker/login-action@v3

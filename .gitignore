@@ -1,6 +1,5 @@
 /app/src/node_modules
 /app/src/.env
+/app/src/eslint*
 
-/apppp/src/node_modules
-/apppp/src/.env
 /Vagrant/.vagrant
