@@ -73,7 +73,7 @@ jobs:
     needs: docker-build
     steps:
     - name: Run Snyk to check Docker images for vulnerabilities
-      # continue-on-error: true             #Un comment this for production
+      continue-on-error: true             #Un comment this for production
       uses: snyk/actions/docker@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
