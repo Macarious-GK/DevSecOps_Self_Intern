@@ -92,4 +92,4 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Push Docker image
-      run: docker push $IMAGE_NAME
+      run: docker push ${{ env.IMAGE_NAME }}
