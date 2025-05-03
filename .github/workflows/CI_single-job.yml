@@ -5,15 +5,16 @@ on:
     branches: [ "main" ]
     paths:
       - 'app/**'
-      - '.github/workflows/node.js.yml'
+      - '.github/workflows/**'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'app/**'
 
 env:
+  IMAGE_NAME: macarious25siv/project:${{ github.event_name }}-${{ github.sha }}
   # IMAGE_NAME: macarious25siv/project:${{ github.sha }}
-  IMAGE_NAME: macarious25siv/project:NodeV5
+  # IMAGE_NAME: macarious25siv/project:NodeV5
 
 jobs:
   Code_build_test:
