@@ -37,10 +37,10 @@ jobs:
 
     - name: Run Snyk to check Node.js dependencies
       uses: snyk/actions/node@master
-      with:
-        args: --severity-threshold=high
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
 
     - run: npm test
       working-directory: ./app/src
