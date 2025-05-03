@@ -72,7 +72,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-build
     steps:
-    - run: docker ps -a
+    - run: docker image ls
+      
     
     - name: Run Snyk to check Docker images for vulnerabilities
       continue-on-error: true             #Un comment this for production
