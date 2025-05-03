@@ -31,9 +31,12 @@ jobs:
         cache: 'npm'
         cache-dependency-path: './app/src/package-lock.json'
 
-    - run: npm ci
+    - name: Cache Node.js modules
+      run: npm ci
       working-directory: ./app/src
-    - run: npm run build --if-present
+    
+    - name: Build Node.js project
+      run: npm run build --if-present
       working-directory: ./app/src
 
     - name: Run Snyk to check Node.js dependencies
@@ -43,13 +46,10 @@ jobs:
       with:
         args: --severity-threshold=high ./app/src
 
-    - run: npm test
+    - name: Run tests
+      run: npm test
       working-directory: ./app/src
 
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: Code_build_test
-    steps:
     - name: Check out code
       uses: actions/checkout@v4
 
@@ -68,11 +68,6 @@ jobs:
       run: docker build -t $IMAGE_NAME .
       working-directory: ./app/
 
-  Security-gate-Snyk-for-Docker-images:
-    runs-on: ubuntu-latest
-    needs: docker-build
-    steps:
-
     - name: Run Snyk to check Docker images for vulnerabilities
       continue-on-error: true             #Un comment this for production
       uses: snyk/actions/docker@master
@@ -81,11 +76,7 @@ jobs:
       with:
         image:  ${{ env.IMAGE_NAME }}
         args: --severity-threshold=high
-  
-  docker-push:
-    runs-on: ubuntu-latest  
-    needs: [Security-gate-Snyk-for-Docker-images, docker-build]
-    steps:
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:

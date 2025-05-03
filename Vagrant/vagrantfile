@@ -22,14 +22,51 @@ Vagrant.configure("2") do |config|
 
       # Install curl if it's not already installed
       sudo apt install curl -y
-
-
     SHELL
-
-  
-
     end
   
+    config.vm.define "k8s" do |k8s|
+      k8s.vm.box = "ubuntu/jammy64"
+      k8s.vm.box_version = "20241002.0.0"
+      k8s.vm.network "private_network", type: "dhcp"
+      k8s.vm.hostname = "k8s"
+      k8s.vm.network "public_network", ip: "192.168.1.100", bridge: "WiFi"
+    
+      k8s.vm.provider "virtualbox" do |vb|
+        vb.name = "k8s"  # VM name in VirtualBox UI
+        vb.gui = false
+        vb.memory = "2560"
+        vb.cpus = 2
+      end
+    
+      # First provisioner (before reboot)
+      k8s.vm.provision "shell", inline: <<-SHELL
+        sudo apt update -y && sudo apt upgrade -y
+        sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+        sudo apt install docker-ce -y
+        sudo usermod -aG docker vagrant
+      SHELL
+    
+      # Trigger reboot
+      k8s.vm.provision "shell", inline: "sudo reboot", run: "always"
+    
+      # Second provisioner (after reboot)
+      k8s.vm.provision "shell", inline: <<-SHELL
+        echo "Post-reboot setup starts here"
+    
+        echo "installing kubectl"
+        curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.2/2024-07-12/bin/linux/amd64/kubectl
+        sudo chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/
+    
+        echo "installing minikube"
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        rm minikube-linux-amd64
+      SHELL
+    end
     
   end
   
