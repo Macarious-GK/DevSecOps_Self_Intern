@@ -7,6 +7,13 @@ spec:
   selector:
     matchLabels:
       tier: app
+  # strategy:
+  #   type: RollingUpdate
+  # strategy:
+  #   type: Recreate
+  # strategy:
+  #   type: Canary
+
   template:
     metadata:
       labels:

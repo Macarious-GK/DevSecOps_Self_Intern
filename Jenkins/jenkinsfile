@@ -1,0 +1,103 @@
+@Library('Jenkins-Shared-Library') _
+
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'APP_IMAGE', defaultValue: 'macarious25siv/project:NodeV5', description: 'App Docker Image Name')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    dir('app/src') {
+                        echo "Installing dependencies..."
+                        // Use npm ci for a clean install of dependencies
+                        sh 'npm ci'
+                        sh 'npm install'
+                    }
+                }
+            }
+        }
+
+        stage('Run Tests & Linting') {
+            steps {
+                script {
+                    dir('app/src') {
+                        echo "Running tests and linting..."
+                        sh 'npm test'
+                        sh 'npm run lint'
+                    }
+                }
+                }
+            }
+        }
+
+        stage('App Build') {
+            steps {
+                script {
+                    dir('app/src') {
+                        echo "Building the application..."
+                         sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Docker Image Build') {
+            steps {
+                script {
+                    dir('app/') {
+                        echo "Building the Docker image..."
+                        buildDockerImage("${params.APP_IMAGE}")
+                    }     
+                }
+            }
+        }
+
+        stage('Image Secrity Gate'){
+            steps {
+                dir('app/') {
+                        echo "Scanning the Docker image for vulnerabilities..."
+                        trivyScanningReport(imageName:"${params.APP_IMAGE}")
+
+                    }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    echo "Pushing the Docker image to Docker Hub..."
+                    dockerHubLogin('Docker_Creds')
+                    pushDockerImage("${params.APP_IMAGE}")
+                }
+            }
+        }
+
+        stage('ArgoCD Sync') {
+            steps {
+               echo "Syncing ArgoCD"
+                    argoCDSync(server:'ip:port', argocd_creds:'argocd_creds', appName:'app_name')
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline execution completed.'
+        }
+        success {
+            notifyGmail(to: 'm.labibebidallah@nu.edu.eg',isSuccess: true)   
+        }
+        failure {
+            notifyGmail(to: 'm.labibebidallah@nu.edu.eg',isSuccess: false)
+        }
+    }
+}
