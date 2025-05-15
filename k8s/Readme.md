@@ -93,7 +93,7 @@ minikube addons enable ingress
 - we can't use backend ref to another namespace without using ReferenceGrant for **(enable cross namespace references )**
 - This security mesusers made to overcome *CVE-2021-25740: Endpoint & EndpointSlice permissions allow cross-Namespace forwarding*
 - We use **ReferenceGrant** and describe *From* and *To* to enable cross-ns, to make our httproute able to access and forward traffic to our service in another ns
-
+- Gateway API is used for North/South traffic ***out/in**cluster* 
 #### commands:
 - kubectl describe gatewayclass nginx
 - kubectl describe gateway gateway-name
@@ -111,3 +111,53 @@ minikube addons enable ingress
 
 # ----------------------------------------------------------------
 ## K8s Storage
+
+- Kubernetes applications (pods) are ephemeral by default (if a pod is deleted or crashes, its data is lost.) --> Not **presistent**
+
+- Kubernetes support something called Dynamic Provisioninig for storage 
+    - Using PVC to auto Create and assign space for the asked storage by pvc
+
+- 
+
+
+### Volume
+- Used for Data persistence and Shared storage.
+- Usage: 
+    - specify the volumes to provide for the Pod in .spec.volumes and declare where to mount those volumes into containers in .spec.containers[*].volumeMounts.
+
+### Storage Class
+- **StorageClass** is a way to describe different types of storage available in your Kubernetes cluster.
+    - `provisioner`: Specifies the storage provider.
+    - `parameters`:
+    - `reclaimPolicy`: Defines what happens when the PersistentVolumeClaim (PVC) is deleted (Retain,Delete)
+    - `allowVolumeExpansion`: Allows expanding the size of the persistent volume.
+- A StorageClass in Kubernetes can be set to manual to disable dynamic provisioning, meaning Kubernetes won’t automatically create volumes for you. Instead, you’ll have to manually create PersistentVolumes (PVs).
+- Local storage, on the other hand, refers to disks physically attached to the nodes. While Kubernetes doesn’t automatically provision local storage by default,### PersistentVolume 
+
+### PersistentVolume
+- **A PersistentVolume (PV)** is the actual storage resource that Kubernetes manages. It is a physical storage resource that has been allocated in the cluster.
+    - `Source`: Cloud storage, Network File System (NFS), Host-based storage (hostpath)
+    - `Capacity`: 1Gi, 5Gi
+    - `AccessModes`: 
+        - ReadWriteOnce (RWO): Can only be mounted by a single node.
+        - ReadOnlyMany (ROX): Can be mounted by multiple nodes in read-only mode.
+        - ReadWriteMany (RWX): Can be mounted by multiple nodes in read-write mode.
+    - `ReclaimPolicy`: When a PVC is deleted, defines whether the PV should be deleted, retained, or recycled.
+    
+### PersistentVolumeClaim 
+- **A PersistentVolumeClaim (PVC)** is a request for storage by a user (or a pod).
+    - `Requesting storage`:
+    - `Access modes`:
+    - `storageClassName`: Specifies which StorageClass to use
+
+#### How the PVC and PV Are Linked
+- These two resources will successfully `bind` because:
+    - storage size
+    - accessModes
+    - storageClassName
+
+- For sharing volume with replicas we need to achieve **ReadWriteMany (RWX) shared volumes**
+- `Dynamic Provisioning` in Kubernetes refers to the automatic creation of PersistentVolumes (PVs) by Kubernetes when a PersistentVolumeClaim (PVC) is created, based on the StorageClass specified in the PVC.
+
+- https://hbayraktar.medium.com/how-to-setup-dynamic-nfs-provisioning-in-a-kubernetes-cluster-cbf433b7de29
+- https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner

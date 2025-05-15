@@ -2,18 +2,14 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: mac
-
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ndeploy
-  labels:
-    owner: mac
+  name: ndeployapp
   namespace: mac
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: nodejs
@@ -23,31 +19,88 @@ spec:
         app: nodejs
     spec:
       containers:
-        - name: mongodb
-          image: mongo:4
-          ports:
-            - containerPort: 27017
         - name: nodejs
           image: macarious25siv/project:NodeV5
           ports:
             - containerPort: 5000
           env:
             - name: MONGODB_URI
-              value: "mongodb://localhost:27017/test"
-
+              value: "mongodb://nservicedb.mac.svc.cluster.local:27017/test"
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: nservice
+  name: nserviceapp
   namespace: mac
 spec:
+  selector:
+    app: nodejs
   type: NodePort
   ports:
     - port: 5000
       targetPort: 5000
       protocol: TCP
+      nodePort: 30225
+
+##-----------------------------------DB-----------------------------------
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mypvc
+  namespace: mac
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+  # volumeMode: Filesystem
+  # selector:
+  #   matchLabels:
+  #     type: mongodb
+  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ndeploydb
+  namespace: mac
+spec:
+  replicas: 1
   selector:
-    app: nodejs
+    matchLabels:
+      tier: db
+  template:
+    metadata:
+      labels:
+        tier: db
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:4
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: db-volume
+      volumes:
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName: mypvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nservicedb
+  namespace: mac
+spec:
+  selector:
+    tier: db
+  type: ClusterIP
+  ports:
+    - port: 27017
+      targetPort: 27017
+      protocol: TCP
 ---

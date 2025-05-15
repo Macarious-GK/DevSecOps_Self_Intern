@@ -53,6 +53,26 @@ spec:
     - name: nservice
       namespace: mac
       port: 5000
+    #   weight: 80
+
+    # - name: v2-service
+    #   port: 80
+    #   weight: 20
+--- 
+apiVersion: gateway.nginx.org/v1alpha1
+kind: RateLimitPolicy
+metadata:
+  name: mac-gateway-ratelimit
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: mac-nginx-gateway-instance
+  limits:
+    - rate: 10
+      burst: 5
+      window: 1s
+
 
 
 
