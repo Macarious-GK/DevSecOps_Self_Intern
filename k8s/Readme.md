@@ -9,7 +9,8 @@ App archetectures
 
 
 
-
+# ----------------------------------------------------------------General
+## Kubernetes General
 ### labels and seclectors
 kubectl get pods -l key=value
 kubectl get pods -l 'key in (value, value), key notin (value, value)'
@@ -19,37 +20,37 @@ we use labels to easyly identify app and pods so somethiong like service can fin
 
 each resource in k8s has its metadata/labels that can identfy with 
 
+### Secrets & Configmap
+- ConfigMap:
+    - A ConfigMap is a Kubernetes API object used to store non-confidential configuration data in key-value pairs.
+    - let you store configuration for other objects using **Key/value pairs** & inject them to *running pods*
+    - Provide configuration files to apps
+- Secrets:
+    - stores sensitive data
+    - Types:
+        - opaque: default
+        - serviceAccount Token: 
+        - Basic Authentication: contian two key/value pairs creds 
+        - SSH, TLS: private key, certs
+- Usage:
+    - 
+    - Using Configmaps as environment variables
+- When a ConfigMap currently consumed in a volume is updated, projected keys are eventually updated as well.
+- ConfigMaps consumed as environment variables are not updated automatically and require a pod restart.
+- Files inside the volume are updated, but Pods won't re-read unless app watches file changes
+#### Commands
+- kubectl get cm name -o yaml
+- kubectl describe cm name
+- kubectl create cm name --from-file=path/to/file
+- kubectl create cm name --from-literal=env=test
+---
+- kubectl create secret type name --from-file=path/to/file
+- kubectl create secret type name --from-literal=env=test
 
-### Deployment scaling 
-kubectl scale deploy ndeploy --replicas=3
-kubectl set image deploy ndeploy ndeploy=newImage
-kubectl rollout status deployment/ndeploy
-
-#### Deployment strategies
-- Rolling Update Deployment (Default)
-    - This strategy replace pod by pod without any downtime 
-    - Minor performace reduction happend (the desired no. of pods is less by one)
-- Recreate Deployment
-    - This strategy shutdown all old pods and up the new ones 
-    - Used for system that cannot work with partially update state 
-    - It has downtime
-- Canary Deployment
-    - Its partially udpade strategy that allow you to test your new version by assignening % of the real users to user the new version 25%
 
 
-### Multi Container Pods
- more than one conatinaer in one pod
-- Design Patterns:
-    - SideCar: Main app container and Helper Container
-    - Ambassador: connect the containers with outside world (Act as Proxy)
-    - Adaptor: It adapte the requests in/out 
-- Communictatoin:
-    - Shared network Namespace (localhost)
-    - Shared Volumn
-    - Shard Process
-
-# ----------------------------------------------------------------
-## K8s Networking
+# ----------------------------------------------------------------Networking
+## Kubernetes Networking
 ### Service
  
 #### Types:
@@ -109,8 +110,8 @@ minikube addons enable ingress
 
 ### Network Policy
 
-# ----------------------------------------------------------------
-## K8s Storage
+# ----------------------------------------------------------------Storage
+## Kubernetes Storage
 
 - Kubernetes applications (pods) are ephemeral by default (if a pod is deleted or crashes, its data is lost.) --> Not **presistent**
 
@@ -161,3 +162,49 @@ minikube addons enable ingress
 
 - https://hbayraktar.medium.com/how-to-setup-dynamic-nfs-provisioning-in-a-kubernetes-cluster-cbf433b7de29
 - https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
+
+# ----------------------------------------------------------------State
+## Kubernetes stateless vs stateful 
+
+### Deployment  (stateless)
+- A stateless application does not store any data between sessions. Each request is independent — the app doesn’t care what happened before.
+#### Commands
+kubectl scale deploy ndeploy --replicas=3
+kubectl set image deploy ndeploy ndeploy=newImage
+kubectl rollout status deployment/ndeploy
+
+#### Deployment strategies
+- Rolling Update Deployment (Default)
+    - This strategy replace pod by pod without any downtime 
+    - Minor performace reduction happend (the desired no. of pods is less by one)
+- Recreate Deployment
+    - This strategy shutdown all old pods and up the new ones 
+    - Used for system that cannot work with partially update state 
+    - It has downtime
+- Canary Deployment
+    - Its partially udpade strategy that allow you to test your new version by assignening % of the real users to user the new version 25%
+
+#### Multi Container Pods
+ more than one conatinaer in one pod
+- Design Patterns:
+    - SideCar: Main app container and Helper Container
+    - Ambassador: connect the containers with outside world (Act as Proxy)
+    - Adaptor: It adapte the requests in/out 
+- Communictatoin:
+    - Shared network Namespace (localhost)
+    - Shared Volumn
+    - Shard Process
+
+### StatefulSets (stateful)
+- A StatefulSet runs a group of Pods, and maintains a sticky identity for each of those Pods. This is useful for managing applications that need persistent storage or a stable, unique network identity.
+- A stateful application needs to remember things — it stores data that must persist across restarts.
+
+- StatefulSets are valuable for applications that require one or more of the following.
+    - Stable, unique network identifiers.
+    - Stable, persistent storage.
+    - Ordered, graceful deployment and scaling.
+    - Ordered, automated rolling updates.
+- StatefulSets currently require a Headless Service to be responsible for the network identity of the Pods. 
+- The volumeClaimTemplates will provide stable storage using PersistentVolumes provisioned by a PersistentVolume Provisioner
+- 
+#### 
