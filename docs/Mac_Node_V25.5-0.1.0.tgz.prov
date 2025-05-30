@@ -1,0 +1,26 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+apiVersion: v2
+appVersion: 02.25.5
+description: A Helm chart for Node.js application with Mongodb Server developed by
+  Macarious_25Siv
+name: Mac_Node_V25.5
+type: application
+version: 0.1.0
+
+...
+files:
+  Mac_Node_V25.5-0.1.0.tgz: sha256:a3ae695fb1273cb6e7bc7f0a30f0127e7c16ff7a125da618f2bbc5535c75c335
+-----BEGIN PGP SIGNATURE-----
+
+wsCcBAEBCgAQBQJoOPXTCRACNaJcp7y4KAAAnSMKACWCasvUw+vQGYbxFaOVhdbM
+3t5kfwvOAi5+awG/USXIp51wQzIRlCGCDPErO+Ce+WlVsbYPl3YcZ6tVi5jvQM2o
+X6883tfEdluMxtNgS2iNCpek9kBn9PtWpGZZdx2BJObLhsnrA42+PADkWGfrvS5/
+Az3msUu5g5sr6inE5kTnLkCFMod+KLD1Yf7COnYSQkhQvDbuPiPNkgqLrnhCxIMN
+WNslsCIKneS4G27fkcvQT6c1tGE7ixTJ/IaTQsc50Fb85mQz1Qz3yE3XFwu0ftr+
+UWJmjzPSXYEZ3OYQgJFfxTFE/TFohUDuIRhiAu97Iqe+PdzTh3QrWqRDrxG+2fYk
+XW3A9w5W6iG8HyFovCXrX9uC8QvQTLGqnNBIO7bYdm34ltCvZG20L1p1jxQ4gTep
+d75NA+R3mLsy68z7HbbI
+=4oZZ
+-----END PGP SIGNATURE-----

@@ -1,4 +1,9 @@
 * text=auto
-# *.js text eol=lf
+
+# Ensure LF line endings for YAML and related files
+*.yaml text eol=lf
+*.yml text eol=lf
 *.json text eol=lf
-# *.env text eol=lf
+*.prov text eol=lf
+.helmignore text eol=lf
+helm-chart/** text eol=lf

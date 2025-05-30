@@ -170,8 +170,10 @@ minikube addons enable ingress
 - A stateless application does not store any data between sessions. Each request is independent — the app doesn’t care what happened before.
 #### Commands
 kubectl scale deploy ndeploy --replicas=3
-kubectl set image deploy ndeploy ndeploy=newImage
+kubectl set image deploy ndeploy continer_name=newImage
 kubectl rollout status deployment/ndeploy
+kubectl rollout history deployment/ndeploy
+kubectl rollout undo deployment/ndeploy     #Rollback
 
 #### Deployment strategies
 - Rolling Update Deployment (Default)
