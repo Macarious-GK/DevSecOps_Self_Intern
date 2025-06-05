@@ -126,7 +126,22 @@ spec:
 ```
 
 #### Packaging & Signing Charts
+```bash
+gpg --full-generate-key
+helm package ./chart_dir
+helm package --sign --key "MacariousGK" --keyring ~/.gnupg/secring.gpg ./Mac_Node_V25.5/
+gpg --list-keys
+gpg --export-secret-keys > ~/.gnupg/secring.gpg
+gpg --export > ~/.gnupg/pubring.gpg
+helm verify Mac_Node_V25.5-0.1.0.tgz
+helm install --verify chart_name
 
+gpg --export-secret-keys --armor MacariousGK > private-key-backup.asc
+gpg --export --armor MacariousGK > public-key.asc
+helm repo index my_charts_filse/ --url https://macarious.me/DevSecOps_Self_Intern/
+helm repo add myrepo https://macarious.me/DevSecOps_Self_Intern/
+
+```
 ## General 
 - Templetes 
 
@@ -163,17 +178,4 @@ sudo apt-get install helm
 
 
 
-
-```bash
-gpg --full-generate-key
-helm package ./chart_dir
-helm package --sign --key "MacariousGK" --keyring ~/.gnupg/secring.gpg ./Mac_Node_V25.5/
-gpg --list-keys
-gpg --export-secret-keys > ~/.gnupg/secring.gpg
-gpg --export > ~/.gnupg/pubring.gpg
-helm verify Mac_Node_V25.5-0.1.0.tgz
-helm install --verify chart_name
-
-gpg --export-secret-keys --armor MacariousGK > private-key-backup.asc
-gpg --export --armor MacariousGK > public-key.asc
-```
+Refernece: https://www.youtube.com/watch?v=sNNy8bN7ve0

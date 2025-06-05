@@ -7,3 +7,4 @@
 *.prov text eol=lf
 .helmignore text eol=lf
 helm-chart/** text eol=lf
+kustomize/** text eol=crlf

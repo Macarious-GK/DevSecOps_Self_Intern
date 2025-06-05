@@ -49,4 +49,3 @@ GitOps is a way to manage your infrastructure and applications using **Git as th
 
 ---
 
-Let me know if you'd like a diagram or more technical details!
