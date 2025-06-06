@@ -20,6 +20,8 @@
     - `Namespace`: add common namespace to all
     - `commonAnnotations`: add annotations  
     - `images`: customely update spasific image by *Image Name*
+    - `replicas`: customize 
+
 ```yaml
 commonLabel:
   org: myorg
@@ -34,6 +36,10 @@ images:
   - name: nginx
     newName: apache
     newTag: 
+
+replicas:
+  - name: postgres-deployment
+    count: 3
 ```
 
 ### Patches
@@ -125,6 +131,64 @@ spec:
 ```
 
 ### Overlays
+- Used to share a defualt config accross all environments
+- We create it by adding bases refernce to the main kustomization.yaml file
+```yaml
+bases: 
+  - ../../base
+```
+- we also can add new resourse in this env by using resourses
+
+### Components
+- Provide the ability to define reusable pieces of config logic (resourses & patches)
+```yaml
+# Kustomization.yaml inside components
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - redis-deploy.yaml
+patchesStrategicMerge:
+  - redis-patch.yaml
+# referancing the component from overlayes
+components:
+  - ../../components/caching
+``` 
+
+### Generator
+- when we use secrets or configmap, we shold redeploy the apps manually when updating the secrets or conifgmap 
+- when we use generator and when any update happens it generate new sec/config with new name so this will triger new deployment 
+- We use it for `secretGenerator` and `configMapGenerator`.
+- In case of creating configmap or secret we need to remove the old ones by prune
+``` yaml
+# @kustomization.yaml
+configMapGenerator:
+  - name: mykustom-configmap        # name of conifgmap
+    file: 
+      - filename.conf               # file as configmap
+    literals:
+      - key1=value1                 # key/value pairs
+    behavior: merge                 # update the spasific literal and keep the another literal untouched.
+
+# the output will be configmap resourse like this:
+apiVersion: v1
+kind: Configmap
+metadata:
+  name: mykustom-configmap
+data:
+  key1: "value1"
+  filename.conf: data of the file
+# used in deployments 
+envFrom:
+  - configMapRef:
+      name: mykustom-map
+---
+env:
+  - name: POSTGRES_PASSWORD 
+    valueFrom:
+      configMapKeyRef:
+        name: db-secret
+        key: password 
+```
 
 ### Commands
 ```bash
@@ -132,10 +196,17 @@ kustomize build /path/to/folder                           # customize the resour
 kustomize build /path/to/folder | kubectl apply -f -      # apply the custom manifests on k8s cluster
 kustomize build /path/to/folder | kubectl delete -f -      # apply the custom manifests on k8s cluster
 kubectl apply -k /path/to/folder    
-kubectl delete -k /path/to/folder    
-
-
-
+kubectl delete -k /path/to/folder  
+# In case of creating configmap or secret we need to remove the old ones by prune  
+kubectl apply -k /path/to/folder  --prune -l labelkey=labelvalue  # remove any stall resourse with this label
+kustomize edit set iamge nginx=nginx:1.22 
+kustomize edit set namespace stagging
+kustomize edit set label role:admin org:kodekloud
+kustomize edit add configmap domain-config  --from-literal=domain=kodekloud.com --from-literal=subdomain=api
+kustomize edit add resource db/dbdeploy.yaml
+kustomize edit add resource prometheus-depl.yaml
+kustomize edit set image nginx=memcached
+kustomize edit set replicas api-deployment=8
 ```
 
 

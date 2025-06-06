@@ -25,10 +25,10 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-          envFrom:
-            - configMapRef:
-                name: mykustom-map
-          # env:
-          #   - name: MONGODB_URI
-          #     value: "mongodb://mongodb-service.mac.svc.cluster.local:27017/test"
+          # envFrom:
+          # - configMapRef:
+          #     name: mykustom-map
+          # # env:
+          # #   - name: MONGODB_URI
+          # #     value: "mongodb://mongodb-service.mac.svc.cluster.local:27017/test"
 

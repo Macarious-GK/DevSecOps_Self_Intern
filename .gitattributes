@@ -8,3 +8,4 @@
 .helmignore text eol=lf
 helm-chart/** text eol=lf
 kustomize/** text eol=crlf
+Vagrant/k8s/** text eol=crlf
