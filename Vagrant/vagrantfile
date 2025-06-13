@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
       k8s.vm.provider "virtualbox" do |vb|
         vb.name = "k8s"  # VM name in VirtualBox UI
         vb.gui = false
-        vb.memory = "3072"  # Memory allocation (optional)
+        vb.memory = "4096"  # Memory allocation (optional)
         vb.cpus = 3
       end
     

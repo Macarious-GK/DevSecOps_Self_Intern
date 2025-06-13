@@ -61,7 +61,7 @@ each resource in k8s has its metadata/labels that can identfy with
 #### commands:
 - kubectl expose deploy ndeploy --name=nservice --type=ClusterIP --port= --target-port= 
 - kubectl port-forward svc/nservice port:port
-- sudo socat TCP-LISTEN:exposed_IP,fork TCP:127.0.0.1:internal_Machine_IP
+- sudo socat TCP-LISTEN:exposed_port,fork TCP:127.0.0.1:internal_port
 - minikube service svc/nservice 
 
 
@@ -178,13 +178,13 @@ kubectl rollout undo deployment/ndeploy     #Rollback
 #### Deployment strategies
 - Rolling Update Deployment (Default)
     - This strategy replace pod by pod without any downtime 
-    - Minor performace reduction happend (the desired no. of pods is less by one)
+    - Minor performance reduction happened (the desired no. of pods is less by one)
 - Recreate Deployment
     - This strategy shutdown all old pods and up the new ones 
     - Used for system that cannot work with partially update state 
     - It has downtime
 - Canary Deployment
-    - Its partially udpade strategy that allow you to test your new version by assignening % of the real users to user the new version 25%
+    - Its partially update strategy that allow you to test your new version by assigning % of the real users to user the new version 25%
 
 #### Multi Container Pods
  more than one conatinaer in one pod
