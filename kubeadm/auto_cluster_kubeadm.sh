@@ -85,7 +85,7 @@ kubectl get pods -n kube-system
 
 #=====================================Joining worker nodes to the cluster
 kubeadm token create --print-join-command
-
+kubeadm join 192.168.56.10:6443 --token y16t30.z2mc4mc5jjszz1nf   --cri-socket unix:///var/run/cri-dockerd.sock --discovery-token-ca-cert-hash sha256:9bf7d41c16643954e3f5cf315dd1797fb84808a8eba2d885cc87542b95bc7de6 --node-ip 192.168.56.11
 #=====================================Reset the cluster
 sudo kubeadm reset -f --cri-socket unix:///var/run/cri-dockerd.sock
 sudo systemctl stop kubelet

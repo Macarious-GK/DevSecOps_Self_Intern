@@ -1,4 +1,16 @@
 # Kubernetes and Cloud-Native Associate (KCNA)
+## Table of Contents
+
+- [Curriculum](#curriculum)
+- [Kubernetes Fundamentals](#kubernetes-fundamentals)
+- [Container Orchestration Security](#security)
+- [Container Orchestration Networking](#networking)
+- [Container Orchestration Storage](#storage)
+- [Cloud Native Architecture](#cloud-native-architecture)
+- [Cloud Native Observability](#cloud-native-observability)
+- [Cloud Native Application Delivery](#cloud-native-application-delivery)
+- [Kubectl Commands](#kubectl-commands)
+- [Notes](#notes)
 
 ## Curriculum
 <details>
@@ -856,20 +868,40 @@ cp /path/to/kubeconfig ~/.kube/config
 
 
 ## Notes 
-### Limit Resources in Namespace
--  use  ResourceQuota
-```yaml
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: compute
-  namespace: dev
-spec:
-  hard:
-    pods: "10"
-    requests.cpu: '4'
-    requests.memory: 5Gi
-    limits.cpu: "10"
-    limits.memory: 10 Gi
-     
-```
+### 1. Recreate Deployment
+> Stops the old version and starts the new version.
+- Simple to implement.
+- Downtime during deployment.
+- **Use case**: Low-traffic apps or internal tools.
+
+---
+
+### 2. Rolling Deployment
+> Gradually replaces instances of the old version with the new version.
+- No downtime, controlled rollout.
+- Hard to roll back in some systems.
+- **Use case**: Web apps, microservices, stateless apps.
+
+---
+
+### 3. Blue-Green Deployment
+> Two identical environments (Blue = current, Green = new). Traffic is switched to the new (Green) once it's verified.
+- Zero downtime, instant rollback.
+- Requires double infrastructure.
+- **Use case**: Production-critical services.
+
+---
+
+### 4. Canary Deployment
+- **What it is**: Releases the new version to a small subset of users before full rollout.
+- **Pros**: Early detection of issues, low risk.
+- Requires traffic splitting logic.
+- **Use case**: Gradual feature rollouts, large-scale apps.
+
+---
+
+### 5. A/B Testing
+> Runs multiple versions simultaneously to compare performance or behavior.
+- Useful for data-driven decisions.
+- Requires user segmentation and analytics.
+- **Use case**: Marketing experiments, UX testing.
