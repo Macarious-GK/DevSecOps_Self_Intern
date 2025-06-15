@@ -8,13 +8,16 @@
 - [Pod Autoscaling](#pod-autoscaling)
 - [CI/CD + GitOps Tasks](#cicd--gitops-tasks)
 - [Logging & Monitoring](#logging--monitoring)
+- [Accessing Private Container Registry with imagePullSecrets](#accessing-private-container-registry-with-imagepullsecrets)
 - [Disaster Recovery & Backup](#disaster-recovery--backup)
 - [Multi-Cluster Kubernetes Management with Rancher](#multi-cluster-kubernetes-management-with-rancher)
+
 
 ## Setup Kubeadm Cluster
 
 ### Prepare Infra-Machines Networks
 > Enable IPv4,IPv6 packet forwarding
+```bash
 sudo swapoff -a
 sudo modprobe br_netfilter
 sudo modprobe overlay
@@ -28,6 +31,7 @@ net.bridge.bridge-nf-call-ip6tables = 1
 net.ipv4.ip_forward                 = 1
 EOF
 sudo sysctl --system
+```
 
 ### Install Docker Engine on Ubuntu & CRI 
 > Add Docker's official GPG key:
