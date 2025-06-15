@@ -92,7 +92,7 @@ echo '[Service]
 Environment="KUBELET_EXTRA_ARGS=--node-ip=machine-ip-address"'
  | sudo tee /etc/systemd/system/kubelet.service.d/20-nodeip.conf
 
-sudo kubeadm join 192.168.56.10:6443 --cri-socket unix:///var/run/cri-dockerd.sock --token alwt8v.n4r27nmlcitcehpe --discovery-token-ca-cert-hash sha256:233f11fb41892b0ed0e74db5a7f9faaaafb5b9af2a0f2bc6df9f495b34cb2295
+sudo kubeadm join 192.168.56.10:6443 --cri-socket unix:///var/run/cri-dockerd.sock --token  --discovery-token-ca-cert-hash 
 #=====================================Reset the cluster
 sudo kubeadm reset -f --cri-socket unix:///var/run/cri-dockerd.sock
 sudo rm -rf /etc/kubernetes /var/lib/etcd /var/lib/kubelet ~/.kube /etc/cni/net.d
