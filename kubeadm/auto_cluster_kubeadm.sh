@@ -82,19 +82,27 @@ kubectl apply -f calico.yaml
 #=====================================Managing the cluster nodes
 kubectl get nodes
 kubectl get pods -n kube-system
-
+sudo systemctl status kubelet
 #=====================================Joining worker nodes to the cluster
 kubeadm token create --print-join-command
-kubeadm join 192.168.56.10:6443 --token y16t30.z2mc4mc5jjszz1nf   --cri-socket unix:///var/run/cri-dockerd.sock --discovery-token-ca-cert-hash sha256:9bf7d41c16643954e3f5cf315dd1797fb84808a8eba2d885cc87542b95bc7de6 --node-ip 192.168.56.11
+--cri-socket unix:///var/run/cri-dockerd.sock
+# Edit 
+nano /etc/default/kubelet
+echo '[Service]
+Environment="KUBELET_EXTRA_ARGS=--node-ip=machine-ip-address"'
+ | sudo tee /etc/systemd/system/kubelet.service.d/20-nodeip.conf
+
+sudo kubeadm join 192.168.56.10:6443 --cri-socket unix:///var/run/cri-dockerd.sock --token alwt8v.n4r27nmlcitcehpe --discovery-token-ca-cert-hash sha256:233f11fb41892b0ed0e74db5a7f9faaaafb5b9af2a0f2bc6df9f495b34cb2295
 #=====================================Reset the cluster
 sudo kubeadm reset -f --cri-socket unix:///var/run/cri-dockerd.sock
-sudo systemctl stop kubelet
-sudo rm -rf /etc/kubernetes /var/lib/etcd /var/lib/kubelet ~/.kube
+sudo rm -rf /etc/kubernetes /var/lib/etcd /var/lib/kubelet ~/.kube /etc/cni/net.d
 sudo systemctl restart cri-docker
-sudo systemctl restart kubelet
+sudo systemctl restart kubelet cri-docker
+
+
+sudo systemctl stop kubelet
 
 #=====================================Debugging the kube-apiserver container
-sudo kubeadm reset
 sudo kubeadm reset -f --cri-socket unix:///var/run/cri-dockerd.sock
 
 rm -rf $HOME/.kube
@@ -119,10 +127,28 @@ sudo nano /etc/containerd/config.toml
 sudo systemctl restart containerd
 
 
+sudo kubeadm init --config=kubeadm-config.yaml --v=5
+- cat kubeadm-config.yaml 
+```yaml
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: unix:///var/run/cri-dockerd.sock
+  kubeletExtraArgs:
+    node-ip: "192.168.56.10"
+localAPIEndpoint:
+  advertiseAddress: "192.168.56.10"
+  bindPort: 6443
 
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+kubernetesVersion: "v1.32.5"
+controlPlaneEndpoint: "192.168.56.10"
+networking:
+  podSubnet: "10.244.0.0/16"
 
-
- 
+```
 
 
 #=====================================References
