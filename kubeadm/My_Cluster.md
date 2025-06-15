@@ -4,7 +4,7 @@
 - [Setup Kubeadm CLuster](#setup-kubeadm-cluster)
 - [Configure Kubectl to control Remote Cluster](#configure-kubectl-to-control-remote-cluster)
 - [Configure NFS Server and Storage Class](#configure-nfs-server-and-storage-class)
-- [Trying to access the service Using NodePort](#trying-to-access-the-service-using-nodeport)
+- [Accessing Kubernetes Services via NodePort](#accessing-kubernetes-services-via-nodeport)
 - [Pod Autoscaling](#pod-autoscaling)
 - [CI/CD + GitOps Tasks](#cicd--gitops-tasks)
 - [Logging & Monitoring](#logging--monitoring)
