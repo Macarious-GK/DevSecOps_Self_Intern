@@ -271,6 +271,8 @@ curl http://any-node-ip:nodePort
 
 ## policy enforcement kubernetes
 
+## Accessing Private Container Registry with imagePullSecrets
+
 ## Disaster Recovery & Backup
 
 ## Multi-Cluster Kubernetes Management with Rancher
