@@ -24,12 +24,14 @@
     - Local Text Mode/ GUI Mode
     - Remote Text Mode via `SSH Client & Daemon`/ GUI Mode via `VNC- virtual network computing`
 ---
+
 > ### Use System Documentation
 - `--help`: Get short help page for a command
 - `man`: Get Full help page the documentation of command.
     - Contain sections 1 to 8
     - Contain command in section *1* & *8*
 ---
+
 > ### Management for File & Directories
 - `Absolute path`: A full path from the root of the filesystem, start with `/`.
 - `Relative Path`: Starts from the current working directory.
@@ -47,6 +49,7 @@ mv [src] [dis]  # mv file to location or Rename it
 rm name         # remove file, add -r for dir           
 ```
 ---
+
 > ### Soft Links & Hard Links
 - `Hard Link Process`: link files to Inode 
     - No hard links to dir
@@ -57,6 +60,7 @@ rm name         # remove file, add -r for dir
     - Unique per file
 - `Soft Link`: Act as shortcut for files & dirs
     - Soft links between diff filesystem
+
 > ### File Permissions
 - Only the owner of a file can change its permissions
 ```text
@@ -75,6 +79,8 @@ chown ownername file    # Change user of
 chown owner:group file  # Change owner & Group
 chmod perms file/dir
 ```
+---
+
 > ### SUID, SGID, Sticky Bit
 - `SUID`: Allow user to run an executable with perm of the executable file Owner
 - `SGID`: Allow user to run an executable file/dir with perm of the executable file/dir Group
@@ -87,6 +93,7 @@ chmod 2xxx file             # set SGID
 chmod 6xxx file             # set SUID & SGID
 chmod 1xxx file             # Set Sticky Bit
 ```
+---
 
 > ### Searching Files
 - Commands: find /path/to/search/in/ <options> file
@@ -113,6 +120,7 @@ find -name kary -size +100k                 # search name kary AND size more 100
 find -name kary -o -size +100k              # search name kary OR size more 100k
 find -not -name kary                        # search not name kary 
 ```
+---
 
 > ### Manipulate File Content
 - Display File Content:
@@ -136,6 +144,8 @@ sed -i 's/cary/kary/g' file    # replace every match of cary to kary, , 's' --> 
 less file                   # Display and search file in pages
 more file                   # Display file in pages
 ```
+---
+
 > ### Search File Using Grep
 ```bash
 grep [options] 'search_Pattern' file
@@ -146,6 +156,8 @@ grep [options] 'search_Pattern' file
 # -c count
 grep -ir 'password' /dir/           # Search case insensitive of word password in dir and sub dir
 ```
+---
+
 > ### Analyze Text Using RegEX
 - RegEx:
     - `^`: Match text with *start* pattern
@@ -161,8 +173,114 @@ grep -ir 'password' /dir/           # Search case insensitive of word password i
     - `[^]`: Negated Ranges
     - `()`: SubExpressions Group
 - Using `egrep` or `-E`: to use RegEx in matching pattern using grep
+---
+
+> ### Archive, Back Up, Compress
+- When we backup our data we archive it into a file then compress this file.
+#### Archive
+- `Command:` **.tar**: 
+    - `-tf`: --list --files
+    - `-cf`: --create --file
+    - `-rf`: --append --file
+    - `-xf`: --extract --file
+    - `-C`: --directory
+    - `-z`: --gzip
+    - `-j`: --bzip
+    - `-J`: --xz
+    - `--autocomplete`
+```bash
+tar -tf archive.tar
+tar -cf archive_name.tar files/dir
+tar -rf archive_name.tar files/dir
+tar -xf archive_name.tar
+tar -xf archive_name.tar -C desired_path
+
+tar -czf archive.tar.gz files
+tar -cjf archive.tar.bz2 files
+tar -cJf archive.tar.xz files
+ ```
+
+#### Compress
+- Tools that compress single file: `gzip`, `bzip`, `xz`
+- `Command:` **.gz**, **.bz2**, **.xz** : 
+    - `-k`: --keep
+    - `-l`: --list
+- Tools that compress more that one file: `zip` 
+- `Command:` **.zip** : 
+    - `-r`: recursive for folders
+```bash
+# gzip tool
+gzip file
+gunzip file.gz
+# bzip tool
+bzip2 file
+bunzip file.gz
+# xz tool
+xz file
+unxz file.gz
+# zip
+zip archive file
+zip -r archive /dir/
+```
+
+#### Backup
+```bash
+# Backup Dir to another machine using ssh daemon or to same machine
+rsync -a dirORfile/ backupsDIR/
+rsync -a dirORfile/ kary:ip.to.ssh.machine:path/to/location
+# Disk Image
+sudo dd if=/input/disk of=/output/image.raw bs=1M --status
+```
+---
+
+> ### Input/Output Redirection
+- `<`: input redirect (stdin)
+- `<<EOF text EOF`: End of file signal
+- `bc <<<1+2+3`: Here String
+- `>`, `1>`: redirect output overwrite the file (stdout)
+- `>>`, `1>>`: output append to file (stdout)
+- `2>`: output direct error of the output and overwrite (stderr)
+- `2>>`: output direct error of the output and append (stderr)
+- `1> output.txt 2>&1`, `&> output.txt`: direct output to file and direct error to the output too
+- `|`: Piping the output of command  to another command
+```bash
+cat < file.txt 
+
+sort file > output
+sort file 1> file2 2> error
+sort file &> output
+
+cat file.txt | grep "hello"
+cat <<EOF
+line1
+line1
+EOF
+
+#!/bin/bash
+cat <<EOF > myfile.txt
+Line 1: Hello
+Line 2: This is a test
+EOF
+```
+---
+
+> ### SSL/TLS
+```bash
+# Create a Private Key
+openssl genrsa -out my.key 2048
+# Create Signing Request
+openssl req -new -key my.key -out my.csr -subj "/CN=mydomain.com/O=myorg"
+# Sign Cert by CA
+openssl x509 -req -in my.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out my.crt -days 365
+# Display Cert Details
+openssl x509 -in my.crt -noout -text
+# Verify Cert
+openssl verify -CAfile ca.crt my.crt
+```
 
 ## Operations Deployment
+
+>
 
 ## Users and Groups
 
@@ -196,4 +314,16 @@ sed -i 's/enabled/disabled/g' values.conf
 sed -i 's/disabled/enabled/gi' /home/bob/values.conf    # Case In sensitive
 sed -i '500,2000s/enabled/disabled/g' values.conf       # In range
 sed -i 's~#%$2jh//238720//31223~$2//23872031223~g' /home/bob/data.txt   #use ~ to separate  diff patterns
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sudo tar czfP logs.tar.gz /var/log/
+tar tf logs.tar 1> tar_data.txt
+tar xf archive.tar.gz -C /tmp
+bzip2 --keep /home/bob/file.txt
+sort values.conf |uniq  > values.sort           # Sort Uniqe values
+sort -duf values.conf  > values.sorted          # sort Uniqe values with ignore case
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+openssl req -newkey rsa:4096 -keyout priv.key -out cert.csr
+openssl req -x509 -noenc -keyout priv.key -out kodekloud.crt -days 365
+openssl x509 -in my.crt -text
 ## Notes
+```

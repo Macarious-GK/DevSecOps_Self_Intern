@@ -263,8 +263,12 @@ curl http://any-node-ip:nodePort
 - [***kubeadm-config-Reference***](https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/)
 
 
-## Pod Autoscaling
+## Pod Autoscaling 
 
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus prometheus-community/prometheus --namespace prometheus --create-namespace 
+helm install prometheus-adapter prometheus-community/prometheus-adapter -n prometheus
 ## CI/CD + GitOps Tasks
 
 ## Logging & Monitoring
@@ -276,3 +280,46 @@ curl http://any-node-ip:nodePort
 ## Disaster Recovery & Backup
 
 ## Multi-Cluster Kubernetes Management with Rancher
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: prometheus
+    meta.helm.sh/release-namespace: prometheus
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: prometheus
+    app.kubernetes.io/version: v3.1.0
+    helm.sh/chart: prometheus-26.1.0
+  name: prometheus-server
+  namespace: prometheus
+  resourceVersion: "129912"
+  uid: e3b6c02c-1290-4c5e-80f3-dda49f34ff34
+spec:
+  clusterIP: 10.104.47.112
+  clusterIPs:
+  - 10.104.47.112
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 9090
+    nodePort: 30080
+  selector:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/name: prometheus
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+                      
+

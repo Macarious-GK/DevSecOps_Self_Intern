@@ -27,6 +27,7 @@ kubectl scale deployment my-deploy --replicas=5
 ## HPA
 - `Horizontal Pod Autoscaling`:  Increase the units that handel the workload **`+Pods`**
 - `HPA` works with *Deployment* & *Statefulset*
+- We need to define resources in or Deploy/stateful, also we need metrics server
 - How it works:
     - HPA need Metrics Server to be configured
     - We Define a resource of HPA with target Deploy and Metric Threshold 
@@ -45,6 +46,16 @@ kubectl scale deployment my-deploy --replicas=5
         - *metrics.k8s.io*: 
         - *custom.metrics.k8s.io*: App Gen, originate within cluster
         - *external.metrics.k8s.io*: External Gen, originate outside cluster
+
+- `HPA Custom Metrics`: 
+    - `Custom` means that we will not use native Metrics Server
+    - In order to collect custom metrics we use custom 
+    - The `Application` will expose the custom metrics that we need to get
+    - `Metrics Collection Agent`: Get Metrics from the app then it sends to `Metrics Adaptor`
+    - `Metrics Adaptor`: will provide the metrics to the `kube-api`
+    - `Kube-api` will check the `HPA Rules` and apply what is needed 
+
+
 
 ## VPA
 
