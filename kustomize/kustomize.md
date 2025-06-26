@@ -7,10 +7,10 @@
 #### Kustomization.yaml
 - This file exist in the base and layers folders 
 - Cotain 2 main sections:
-    - resourses: the resourses files that we will apply our customzation on it
-        - contain path to resourses
-        - path to folder that contain kustomization.yaml that point to resourses
-    - customization that we need to do on the resourses
+    - resources: the resources files that we will apply our customization on it
+        - contain path to resources
+        - path to folder that contain kustomization.yaml that point to resources
+    - customization that we need to do on the resources
 
 ### Transformer
 - This is a predefined transformations
@@ -19,7 +19,7 @@
     - `namePrefix` / `nameSuffix`: add common prefix and suffix to all
     - `Namespace`: add common namespace to all
     - `commonAnnotations`: add annotations  
-    - `images`: customely update spasific image by *Image Name*
+    - `images`: custom update specific image by *Image Name*
     - `replicas`: customize 
 
 ```yaml
@@ -43,8 +43,8 @@ replicas:
 ```
 
 ### Patches
-- provide another method to modify k8s conifg
-- surgical method approach to target a spasific section in k8s resourse
+- provide another method to modify k8s config
+- surgical method approach to target a specific section in k8s resource
 - To create a Patch:
     - Operation type: add/remove/replace
     - Target: use kind, namespace, name, labelSelector, etc ..
@@ -131,16 +131,16 @@ spec:
 ```
 
 ### Overlays
-- Used to share a defualt config accross all environments
-- We create it by adding bases refernce to the main kustomization.yaml file
+- Used to share a default config across all environments
+- We create it by adding bases reference to the main kustomization.yaml file
 ```yaml
 bases: 
   - ../../base
 ```
-- we also can add new resourse in this env by using resourses
+- we also can add new resource in this env by using resource
 
 ### Components
-- Provide the ability to define reusable pieces of config logic (resourses & patches)
+- Provide the ability to define reusable pieces of config logic (resource & patches)
 ```yaml
 # Kustomization.yaml inside components
 apiVersion: kustomize.config.k8s.io/v1alpha1
@@ -155,8 +155,8 @@ components:
 ``` 
 
 ### Generator
-- when we use secrets or configmap, we shold redeploy the apps manually when updating the secrets or conifgmap 
-- when we use generator and when any update happens it generate new sec/config with new name so this will triger new deployment 
+- when we use secrets or configmap, we should redeploy the apps manually when updating the secrets or conifgmap 
+- when we use generator and when any update happens it generate new sec/config with new name so this will trigger new deployment 
 - We use it for `secretGenerator` and `configMapGenerator`.
 - In case of creating configmap or secret we need to remove the old ones by prune
 ``` yaml
@@ -167,9 +167,9 @@ configMapGenerator:
       - filename.conf               # file as configmap
     literals:
       - key1=value1                 # key/value pairs
-    behavior: merge                 # update the spasific literal and keep the another literal untouched.
+    behavior: merge                 # update the specific literal and keep the another literal untouched.
 
-# the output will be configmap resourse like this:
+# the output will be configmap resource like this:
 apiVersion: v1
 kind: Configmap
 metadata:

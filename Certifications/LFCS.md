@@ -17,7 +17,7 @@
 > - Networking **25%**
 > - Storage **20%**
 
-## Essential Commands
+## ***Essential Commands***
 
 > ### Login To Remote & Local GUI-Text Mode Console
 - Types:
@@ -151,9 +151,13 @@ more file                   # Display file in pages
 grep [options] 'search_Pattern' file
 # -i Case inessive
 # -v Revert 
+# -n Show line numbers
 # -r Recursive for dir
 # -w specific batten
 # -c count
+# -q option tells grep to run quietly (or silently).
+# -E use RegEx
+# --color Highlight matching text
 grep -ir 'password' /dir/           # Search case insensitive of word password in dir and sub dir
 ```
 ---
@@ -187,7 +191,7 @@ grep -ir 'password' /dir/           # Search case insensitive of word password i
     - `-z`: --gzip
     - `-j`: --bzip
     - `-J`: --xz
-    - `--autocomplete`
+    - `-a`: --autocomplete
 ```bash
 tar -tf archive.tar
 tar -cf archive_name.tar files/dir
@@ -198,6 +202,9 @@ tar -xf archive_name.tar -C desired_path
 tar -czf archive.tar.gz files
 tar -cjf archive.tar.bz2 files
 tar -cJf archive.tar.xz files
+
+tar -caf archive.tar file_or_directory
+
  ```
 
 #### Compress
@@ -278,9 +285,243 @@ openssl x509 -in my.crt -noout -text
 openssl verify -CAfile ca.crt my.crt
 ```
 
-## Operations Deployment
+## ***Operations Deployment***
+> ### Boot, Reboot, and Shutdown a System
+```bash
+sudo systemctl reboot
+sudo systemctl reboot --force             #Force reboot
+sudo systemctl reboot --force --force     #Last Option to do when reboot
 
->
+sudo systemctl poweroff 
+sudo systemctl poweroff --force
+
+sudo shutdown 02:00                       #Shutdown at 2 am
+sudo shutdown +30                         #Shutdown after 30 mins
+sudo shutdown -r +15 'message to appear when reboot'    #Reboot after 15 mins with message
+```
+- Boot Options and system Info:
+- OLD version of systemd used runlevel:
+
+| Runlevel | Description|
+| -------- | -----------|
+| 1 | Single-user mode (rescue/maintenance) |
+| 3 | Multi-user, console login only        |
+| 5 | Multi-user, graphical (GUI) login     |
+
+- New systemd use target Options of system-default when accessing:
+    - `graphical.target`: Full system with graphical UI 
+    - `multi-user.target`: Non-graphical, multi-user environment.
+    - `rescue.target` & `emergency.target`: Minimal single-user environment with basic or No services.
+```bash
+sudo systemctl get-default                       # Check current default target
+sudo systemctl set-default multi-user.target     # Set a new default target 
+sudo systemctl isolate option.target             # Switch to a specific target 
+```
+---
+
+> ### Manage Startup & Run and Services
+- We will talk about Service Units
+- Service unit exist in `/lib/systemd/system/name.service`
+```bash
+sudo systemctl cat ssh.service                   # view svc unit
+sudo systemctl edit --full ssh.service           # Edit svc unit
+sudo systemctl status ssh.service                # Status svc
+sudo systemctl stop ssh.service                  # Stop svc
+sudo systemctl start ssh.service                 # Start svc
+sudo systemctl restart ssh.service              # Restart svc -> service disturbance
+sudo systemctl reload ssh.service                # Reload svc -> No service disturbance
+sudo systemctl reload-or-restart ssh.service     # Try to reload svc, if fail, it will restart
+sudo systemctl enable ssh.service                # Enable start service on boot
+sudo systemctl enable --now ssh.service          # Enable start service on boot and start it now
+sudo systemctl disable ssh.service               # Disable start service on boot
+sudo systemctl mask ssh.service                  # Safe lock to not start or enable svc without unmask it
+sudo systemctl mask ssh.service                  # Unmask svc to start or enable 
+sudo systemctl list-units --type service --all   # List all service units 
+sudo systemctl daemon-reload                     # Reload our Systemd daemon
+```
+- Create a Service:
+```shell
+cat myapp.service << EOF
+[Unit]
+Description=My description
+Documentation=
+After=depended.service
+
+[Service]
+ExecStartPre=echo"myapp pre start"
+ExecStart=path/to/script/service
+KillMode=process
+Restart=always
+RestartSec=1
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
+Alias=app2.service
+EOF
+```
+---
+
+> ### Diagnose and Manage Processes
+- View Process and Resource Usage:
+```bash
+ps                          # Current shell processes
+ps a                        # All processes associated with terminals
+ps u                        # Show by user-oriented format
+ps aux                      # Show all processes system-wide 
+ps aux --sort=-%mem         # Show process sorted by memory    
+ps l                        # Long output more details
+ps f                        # Show hierarchical view of processes
+ps p                        # List process of pid
+ps u pid                    # List more details about process of pid 
+ps -U kary                  # List process of user kary
+pgrep -a proc_name          # Search processes by name 
+top                         # Real-time process monitor
+htop                        # Enhanced 'top' with better UI 
+```
+
+- `Niceness of a process`:
+    - Niceness controls priority of processes.
+    - Range: -20 (highest priority) to 19 (lowest priority).
+```bash
+# nice -n [nice_value] [command/proc]
+# renice [nice_value] [proc_PID]
+#-------------------------------------
+nice -n +11 bash                        # Start bash with low priority
+renice 7 11332                          # Change priority of process 11332 to 7
+```
+
+- `Killing Process`:
+```bash
+# kill -singal proc_pid
+# pkill -signal proc_name
+#--------------------------
+kill -L                     # Show available signals
+kill -singal proc_pid
+pkill -signal proc_name
+
+kill -15 1234         # Politely stop process 1234
+kill -9 1234          # Force kill process 1234
+kill -1 1234          # Reload config of process 1234
+kill -19 1234         # Pause process 1234
+kill -18 1234         # Resume process 1234
+```
+
+- Process on `Background & Foreground`
+```bash
+[Ctrl+Z]          # suspend (pause) current running process in terminal
+command &         # Run Command in background
+jobs              # List background or paused jobs
+bg                # Resume it in background
+fg [n]            # Bring it to foreground, [n] optional to specify the job to return it to fg
+```
+
+- `lsof` = List Open Files:
+```bash
+lsof -u kary                # Show all open files by user `kary`          
+lsof -p 1234                # Show files opened by process with PID 1234  
+lsof /etc/passwd            # Show who is using `/etc/passwd`             
+```
+---
+
+> ### Locate and Analyze System Log Files
+- `journalctl` reads logs collected by systemd-journald
+- Status Error Warning Messages:
+- Location: `/var/log/`
+- 
+```bash
+sudo journalctl -u nginx            # Show logs for the nginx service
+sudo journalctl -p err              # Show only error-level logs
+sudo journalctl -p info -g '^c'     # Show info-level logs matching regex '^c'
+sudo journalctl -b                  # Show logs since the last boot
+sudo journalctl -S "2024-06-01" -T "2024-06-15"  # Show logs between specific dates   
+last                                # History who log into system
+lastlog                             # Show the most recent login of all users
+```
+---
+
+> ### Schedule Tasks
+
++ ***Cron***         (can schedule task to every minutes)
+- System wide Table: Path:`/etc/crontab`
+```scss
+* * * * *  command_to_run
+│ │ │ │ │
+│ │ │ │ └── Day of Week (0 - 7) (Sunday = 0 or 7)
+│ │ │ └──── Month (1 - 12)
+│ │ └────── Day of Month (1 - 31)
+│ └──────── Hour (0 - 23)
+└────────── Minute (0 - 59)
+```
+- Syntax:
+    - `*`: Means "every" value in that position.
+    - `,`: Means multiple individual values in a single field. : 0 9,17 * * * → Run at 9:00 AM and 5:00 PM every day
+    - `-`: Means a range of values. : 0 9-17 * * * → run on the hour from 9 AM to 5 PM
+    - `/`: Means "every Nth" value, starting from the leftmost number. : */5 * * * * → run every 5 minutes
+- Alternative:
+    - Create a script and add it to one of these paths
+    - `/etc/cron.hourly/`, `/etc/cron.daily/`, `/etc/cron.monthly/`, `/etc/cron.weekly/`
+```bash
+crontab -e               # Edit your own cron jobs
+crontab -l               # List your own cron jobs
+crontab -r               # Delete your own cron jobs
+sudo crontab -l -u mac   # List cron jobs of user "mac"
+sudo crontab -l          # List cron jobs of root user
+```
++ ***Anacron***      (can schedule task to every days only)
++ at           (Task should run once )
+---
+
+> ### Software Package Manager
+- For Debian:
+    - `dpkg` & `apt`
+```bash
+apt update 
+apt upgrade
+apt install nginx
+apt autoremove nginx
+apt search  nginx
+```
+---
+
+> ### Configure the Repositories of Package Manager
+- Path: `/etc/apt/source.list`
+- This contain a list of repos that have packages to be installed
+- In case of Installing package that is not the official repo of Ubuntu
+    - Install Public Key
+    - Convert its formate to binary by `gpg --dearmor`
+    - Move the key to the apt keys dir ***`etc/apt/keyrings/`***
+    - Define a source file for our package in /etc/apt/source.list.d/custom.list
+```scss
+deb [signed-by=/etc/apt/keyrings/custom.gpg] https://to/the/custom/repo/ <codename> <component>
+```
+---
+
+> ### Availability of Resources and Processes
+- 
+```bash
+df -h
+du -sh
+free -h
+lscpu 
+lspci
+```
+
+---
+> ###
+- 
+```bash
+
+```
+
+---
+> ###
+- 
+```bash
+
+```
+
+---
 
 ## Users and Groups
 
@@ -325,5 +566,23 @@ sort -duf values.conf  > values.sorted          # sort Uniqe values with ignore 
 openssl req -newkey rsa:4096 -keyout priv.key -out cert.csr
 openssl req -x509 -noenc -keyout priv.key -out kodekloud.crt -days 365
 openssl x509 -in my.crt -text
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sudo shutdown -c
+sudo systemctl set-default graphical.target
+sudo systemctl is-enabled sshd.service
+sudo systemctl unmask apache2
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sleep 10 --> [Ctrl+Z]
+jobs
+pgrep -a sshd
+renice 9 1468
+sudo lsof -p 1 > files.txt
+sudo journalctl -u ssh
+pgrep -a rpcbind | cut -d " " -f 1 > pid.txt
+sudo kill -SIGHUP 1468
+sudo grep -r 'reboot' /var/log > reboot.log
+sudo journalctl -p err > .priority/priority.log
+sudo journalctl -p info -g '^c' > .priority/boot.log
+ps u 1 > /home/bob/resources.txt
 ## Notes
 ```

@@ -219,6 +219,3 @@ spec:
 ### Certification  Management 
 ![Alt text](cert-istio.PNG)
 
-## Observation
-
-###

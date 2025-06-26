@@ -1,18 +1,16 @@
 # HELM
 - Act as package manager in Kubernetes
-- Let us to treate our apps in kubernetes as apps insted of just collection of resources or objects 
-- elemenate the micromangment of each k8s object 
+- Let us to treat our apps in kubernetes as apps instead of just collection of resources or objects 
+- eliminate the micromanagement of each k8s object 
 - `helm 3` has 3-way strategic merge patch: detect any changes and compare it to the last revision taken and to current working version to apply rollbacks
-- Creat Dynamic resources templetes
-- let you centrlize the place of updating app dynamic values like vesrion
-
-
+- Create Dynamic resources templates
+- let you centralized the place of updating app dynamic values like version
 
 
 ## Helm Components
 - cli --> Manage helm apps
 - charts --> collection of apps and config of the app
-- Releace --> single installation of the app using helm chart 'releace has names'
+- Release --> single installation of the app using helm chart 'release has names'
 - Revision --> Snapshot of the app
 - Metadata --> stored in secret in k8s cluster
 - Repositories --> ArtifactHUB.io
@@ -22,7 +20,7 @@
     - application
     - library
 
-- cosist of three files 
+- consist of three files 
     - templete files 
     - values.yaml
     - chart.yaml 
@@ -60,7 +58,7 @@ metadata:
 {{- end }}
 ```
 ---
-- we can make the scope of the values refercned in the file made on another rather than Root
+- we can make the scope of the values referenced in the file made on another rather than Root
 ```Yaml
 {{- with .Values.app}}
 app1: {{.ui.bg}}                 # insted of {{.Values.app.ui.bg}}
@@ -84,7 +82,7 @@ app3: {{.db.bg}}                 # insted of {{.Values.app.db.bg}}
 app: webapp-color
 ```
 #### Templates "_helpers.tpl"
-- when we use some values across many resoruce repetedly we can templates in helpers to reduce redendency
+- when we use some values across many resource repeatedly we can templates in helpers to reduce redundancy
 ```yaml
 # define in _helpers.tpl
 {{- define "labels" }}
@@ -100,10 +98,10 @@ app: webapp-color
 #### Hooks
 - we use hooks to apply some action before update or delete like taking a backup of Database 
 - EX: pre/post-upgrade, pre/post-rollback, pre/post-install, pre/post-delete
-- This action is using k8s resourse kind `Job` to do some script EX: `backup.sh`
-- we use annotation to make helm run this before appling the action like 'upgrade our app'
+- This action is using k8s resource kind `Job` to do some script EX: `backup.sh`
+- we use annotation to make helm run this before applying the action like 'upgrade our app'
 - In case we have multiple actions we define weight "-999" --> "999" 
-- we also define an action to this Job after complete its work by fail or success usin annotation
+- we also define an action to this Job after complete its work by fail or success using annotation
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -142,10 +140,6 @@ helm repo index my_charts_filse/ --url https://macarious.me/DevSecOps_Self_Inter
 helm repo add myrepo https://macarious.me/DevSecOps_Self_Intern/
 
 ```
-## General 
-- Templetes 
-
-
 
 ## Command
 ``` bash
@@ -159,12 +153,12 @@ helm upgread releace_name repo_name/appname --version
 helm rollback releace_name
 helm uninstall releace_name
 helm list releace_name                                                          # list releaces
-helm history                                                                    # History of charts and releaces
+helm history                                                                    # History of charts and releases
 helm create chart_name                                                           # create chart
-helm lint chart_name                                                            # search for erors in chart
+helm lint chart_name                                                            # search for errors in chart
 helm template chart_name                                                        # review the created templates
 helm template chart_name --debug                                                # to debug in case of errors
-helm install release_name chart_name --dry-run                                  # catch error while creating k8s erros
+helm install release_name chart_name --dry-run                                  # catch error while creating k8s error
 ```
 ---
 ``` bash
