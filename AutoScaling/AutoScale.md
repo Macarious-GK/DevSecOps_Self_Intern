@@ -6,12 +6,13 @@
 - Fault tolerance & Recovery
 - Seamless Load Manager
 - Simplify Management
-> ### Kubernetes Scaling
 
+> ### Kubernetes Scaling
 - Cluster Scaling: Worker node Scaling
     - Ensure the Infra is up to the workload needed
 - Pod Scaling
     - Ensure the App is up to the workload needed
+
 > ### Manual Scaling 
 - Manual `HPA`:
     - Increase Replicas of a deployment 
@@ -54,11 +55,114 @@ kubectl scale deployment my-deploy --replicas=5
     - `Metrics Collection Agent`: Get Metrics from the app then it sends to `Metrics Adaptor`
     - `Metrics Adaptor`: will provide the metrics to the `kube-api`
     - `Kube-api` will check the `HPA Rules` and apply what is needed 
+- `HPA Scaling Policy`:
+    - Rules and Guidlines that tell how to scale up and down and when
+    - stabilization window
+        - Scale up aggressively
+        - Scale down conservatively
+<div style="text-align: center;">
+<img src="hpaflow.png" alt="HPA Arch Flow" width="800 " height="400" style="border-radius: 15px;">
+</div>
 
-
-
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: 100
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 3
+          periodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+      selectPolicy: Min
+```
 ## VPA
 
 ## Cluster Scaling
 
 ## KEDA
+
+
+
+## Notes:
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus prometheus-community/prometheus --namespace prometheus --create-namespace --version 26.1.0  
+kubectl edit configmap prometheus-server -n prometheus
+apiVersion: v1
+data:
+  alerting_rules.yml: |
+    {}
+  alerts: |
+    {}
+  allow-snippet-annotations: "false"
+  prometheus.yml: |
+    global:
+      evaluation_interval: 1m
+      scrape_interval: 1m
+      scrape_timeout: 10s
+    rule_files:
+    - /etc/config/recording_rules.yml
+    - /etc/config/alerting_rules.yml
+    - /etc/config/rules
+    - /etc/config/alerts
+    scrape_configs:
+    - job_name: 'custom-metrics'                  #added
+      static_configs:                             #added
+      - targets: ['flask-prometheus-app-service.default.svc.cluster.local'] #added
+    - job_name: prometheus
+      static_configs:
+      - targets:
+        - localhost:9090
+    - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      job_name: kubernetes-apiservers
+      kubernetes_sd_configs:
+helm install prometheus-adapter prometheus-community/prometheus-adapter -n prometheus
+
+We have installed Prometheus Operator and Prometheus Adapter.
+We configured Prometheus to scrape metrics from applications.
+We configured Prometheus Adapter to export the metrics as custom metrics to Kubernetes.
+After introducing load, we were able to query the metrics and observe the values changing.
+
+
+Verify if Prometheus Adapter is returning the correct value. Use the following command:
+kubectl get --raw "/apis/custom.metrics.k8s.io/v1beta1/namespaces/default/pods/*/rabbitmq_queue_messages"| jq
+```

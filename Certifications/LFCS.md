@@ -498,7 +498,6 @@ deb [signed-by=/etc/apt/keyrings/custom.gpg] https://to/the/custom/repo/ <codena
 ---
 
 > ### Availability of Resources and Processes
-- 
 ```bash
 df -h
 du -sh
@@ -506,23 +505,79 @@ free -h
 lscpu 
 lspci
 ```
-
 ---
-> ###
-- 
+
+> ### Change Kernel Runtime Parameters, Persistent and Non-Persistent
+- Kernel parameters at runtime are configuration values that control how the Linux kernel behaves while the system is running
+- Path for make a change for this Parameters permanent `/etc/sysctl.conf`
+- Another way is by adding file contain the updated value in the dir `/etc/sysctl.d/*.conf`
 ```bash
+sudo nano /etc/sysctl.conf                  # Permanent edit a parameters
+sudo sysctl -p /etc/sysctl.d/custom.conf    # Immediately adjust parameters
+```
+---
+
+> ### SELinux File and Process Contexts
+- SELinux is Mandatory Access Control (MAC) system that uses contexts (labels) to control access.
+```scss
+user:role:type:level
 
 ```
-
+- Policy Types
+    - Targeted Policy (most common): Constrains only specific high-risk daemons (e.g., httpd, sshd). Other processes run unconfined.
+    - MLS (Multi-Level Security) Policy: Supports hierarchical sensitivity levels. Used in environments with strict classification requirements.
+- Enforcement Modes
+    - Enforcing: Policies are enforced—violations are blocked and logged
+    - Permissive: Violations are logged but not blocked.
+    - Disabled: SELinux is turned off entirely.
 ---
-> ###
-- 
-```bash
 
+
+> ### Manage and Configure Virtual Machines
+- In Linux we use (QEMU-KVM):
+    - Quick Emulator, Kernel-base virtual Machine
+- Tools: `sudo VIRSH` = **Manage Virtual Machine from command line**
+
+```bash
+sudo apt install virt-manager
+sudo virsh define vm-config.xml      # Define a new VM from XML without starting it
+sudo virsh list --all 
+sudo virsh start my-vm               # Boot a defined but stopped VM
+sudo virsh reboot my-vm              # Soft reboot 
+sudo virsh reset my-vm               # force reset 
+sudo virsh shutdown my-vm            # Graceful shutdown
+sudo virsh destroy my-vm             # Force-off like pulling the plug
+sudo virsh undefine --remove-all-storage my-vm            # Delete domain vm
+sudo virsh autostart my-vm           # Autostart vm when boot
+sudo virsh dominfo my-vm             # Info about vm
+sudo virsh setmaxmem my-vm 100M --config --maximum  # Set max Memory to 100M
+sudo virsh setmem my-vm 100M --config   # Set memory to 100M
+
+sudo virsh setvcpus my-vm 2 --config --maximum  # Set max cpu to 2 
+```
+- Create and Boot a Virtual Machine:
+    - Step 1: Download small cloud image 
+    - Step 2: Move it to `/var/lib/libvirt/images`
+    - Step 3: Create VM with virt-install
+    - Step 4: inject a password directly into the image
+```bash
+wget https://cloud-images.ubuntu.com/minimal/releases/focal/release/ubuntu-20.04-minimal-cloudimg-amd64.img
+sudo mv ubuntu-20.04-minimal-cloudimg-amd64.img /var/lib/libvirt/images/ubuntu-min.qcow2
+sudo chown libvirt-qemu:kvm /var/lib/libvirt/images/ubuntu-min.qcow2
+virt-install --name ubuntu-min --memory 1024 --vcpus 1 --disk path=/var/lib/libvirt/images/ubuntu-min.qcow2,format=qcow2 --import --os-type linux --os-variant ubuntu20.04 --network network=default --noautoconsole
+sudo apt install libguestfs-tools
+sudo virt-customize -a /var/lib/libvirt/images/ubuntu-min.qcow2 --root-password password:root123
+
+
+
+
+
+ sudo virsh console my-vm       # Access the vm cli
 ```
 
----
 
+
+---
 ## Users and Groups
 
 ## Networking
@@ -584,5 +639,13 @@ sudo grep -r 'reboot' /var/log > reboot.log
 sudo journalctl -p err > .priority/priority.log
 sudo journalctl -p info -g '^c' > .priority/boot.log
 ps u 1 > /home/bob/resources.txt
+
+sudo sysctl -p /etc/sysctl.d/pre.conf 
+sysctl -w net.ipv6.conf.lo.seg6_enabled=1
+sysctl -w kernel.modules_disabled=1
+ls -Z /bin/sudo
+chcon -t httpd_sys_content_t /var/index.html
+sudo setenforce 0
+sudo restorecon -R /var/log/
 ## Notes
 ```

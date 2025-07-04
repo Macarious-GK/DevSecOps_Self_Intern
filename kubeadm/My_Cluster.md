@@ -21,6 +21,7 @@
 sudo swapoff -a
 sudo modprobe br_netfilter
 sudo modprobe overlay
+
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
@@ -33,7 +34,7 @@ EOF
 sudo sysctl --system
 ```
 
-### Install Docker Engine on Ubuntu & CRI 
+### Install Docker Engine on Ubuntu
 > Add Docker's official GPG key:
 ```bash
 sudo apt-get update
@@ -49,7 +50,7 @@ echo \
   $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y containerd.io 
 ```
 
 ### Installing cri-dockerd
@@ -111,9 +112,10 @@ kubectl -n kube-system scale deployment cilium-operator --replicas=1
 ### Debugging the Cluster or Resting
 ```bash
 sudo kubeadm reset -f --cri-socket unix:///var/run/cri-dockerd.sock
+sudo kubeadm reset -f --cri-socket unix:///var/run/crio/crio.sock
+sudo kubeadm reset -f --cri-socket unix:///var/run/containerd/containerd.sock
 sudo rm -rf /etc/kubernetes /var/lib/etcd /var/lib/kubelet ~/.kube /etc/cni/net.d
-sudo systemctl restart cri-docker
-sudo systemctl restart kubelet cri-docker
+sudo systemctl restart kubelet cri-docker containerd
 ```
 
 ## Configure Kubectl to control Remote Cluster
@@ -163,8 +165,9 @@ contexts:
 current-context: my-context
 ```
 
-## Configure NFS Server and Storage Class
+## Configure Local provisioner ,NFS Server and Storage Class
 
+### NFS
 > Configure NFS Server on Master Machine or Another remote Machine
 ```bash
 # Install NFS-Server
@@ -209,6 +212,12 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
 - [NFS-Helm-Reference](https://weng-albert.medium.com/how-to-create-an-nfs-storageclass-en-fe962242f44e)
 
 
+### local-path-provisioner
+- Install by kubectl apply
+```bash
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.31/deploy/local-path-storage.yaml
+```
+- https://github.com/rancher/local-path-provisioner
 
 ## Accessing Kubernetes Services via NodePort
 > Prepare the Master kubeadm Configuration for network access
@@ -222,7 +231,9 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 nodeRegistration:
-  criSocket: unix:///var/run/cri-dockerd.sock
+  # criSocket: unix:///var/run/cri-dockerd.sock
+  # criSocket: unix:///var/run/crio/crio.sock
+  criSocket: unix:///var/run/containerd/containerd.sock
   kubeletExtraArgs:
     node-ip: "192.168.56.10"
 localAPIEndpoint:
@@ -231,10 +242,14 @@ localAPIEndpoint:
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
-kubernetesVersion: "v1.32.5"
+kubernetesVersion: "v1.33.2"
 controlPlaneEndpoint: "192.168.56.10"
 networking:
   podSubnet: "10.244.0.0/16"
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd
 ```
 ```bash
 sudo kubeadm init --config=kubeadm-config.yaml --v=5
@@ -251,6 +266,7 @@ kubeadm token create --print-join-command
 cat <<EOF | sudo tee /etc/default/kubelet
 KUBELET_EXTRA_ARGS=--node-ip=<machine-ip>
 EOF
+
 kubeadm join <Master_IP>:6443 --token <TOKEN> --discovery-token-ca-cert-hash <hash>
 ```
 
@@ -258,17 +274,181 @@ kubeadm join <Master_IP>:6443 --token <TOKEN> --discovery-token-ca-cert-hash <ha
 ```bash
 kubectl create deployment hello --image=nginxdemos/hello
 kubectl expose deployment hello --type=NodePort --port=80
-curl http://any-node-ip:nodePort
+curl http://any-node-ip:nodePort    # If using cilium
+curl http://node-of-pod:nodePort    # If using flannel
+
 ```
 - [***kubeadm-config-Reference***](https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/)
 
 
 ## Pod Autoscaling 
 
+### HPA
+
+#### Native Metrics Server
+1. Install Metrics server 
+2. Verify Installation by `kubectl top`
+3. Create Deployment, Service, HPA
+
+- Installation
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl edit deployment metrics-server -n kube-system
+args:
+  - --kubelet-insecure-tls
+  - --kubelet-preferred-address-types=InternalIP,Hostname,InternalDNS,ExternalDNS,ExternalIP
+kubectl rollout restart deployment metrics-server -n kube-system
+kubectl top nodes
+kubectl top pod
+```
+
+- HPA, Deployment
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-apache
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 10
+      policies:
+        - type: Pods
+          value: 3
+          periodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+      selectPolicy: Min
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-apache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php-apache
+  template:
+    metadata:
+      labels:
+        app: php-apache
+    spec:
+      containers:
+      - name: php-apache
+        image: k8s.gcr.io/hpa-example
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
+
+```
+
+#### Custom Metrics Server
+- Install the prometheus metrics server
+- custom storageClass to local-path, NFS
+- Access Prometheus SVC
+- Install Prometheus Adaptor
+- Install Grafana
+
+- > Prometheus metrics server
+```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install prometheus prometheus-community/prometheus --namespace prometheus --create-namespace 
-helm install prometheus-adapter prometheus-community/prometheus-adapter -n prometheus
+
+helm install prometheus prometheus-community/prometheus \
+  --namespace prometheus 
+  --create-namespace \
+  --set server.service.type=NodePort \
+  --set server.service.nodePort=32001 \
+  --values prom-values.yaml
+```
+
+- `prom-values.yaml`:
+```yaml
+server:
+  persistentVolume:
+    enabled: true
+    storageClass: local-path
+    size: 8Gi
+
+alertmanager:
+  persistentVolume:
+    enabled: true
+    storageClass: local-path
+    size: 2Gi
+```
+
+- > Expose prometheus
+```bash
+kubectl port-forward -n prometheus svc/prometheus-server 9090:80
+# Incase you want to access another interface
+sudo socat TCP-LISTEN:9091,fork TCP:127.0.0.1:9090
+```
+
+- > Prometheus adaptor
+```bash
+helm install prometheus-adapter prometheus-community/prometheus-adapter \
+  --namespace monitoring \
+  --create-namespace \
+  --set prometheus.url=http://prometheus-server.prometheus.svc.cluster.local \
+  --set prometheus.port=80 \
+  --set rules.default=true
+```
+
+- > For Visualization
+```bash
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm install grafana grafana/grafana \
+  --namespace prometheus \
+  --create-namespace \
+  --set adminPassword='admin' \
+  --set service.type=NodePort \
+  --set service.nodePort=32000 \
+  --set persistence.enabled=true \
+  --set persistence.size=2Gi \
+  --set persistence.storageClassName=local-path
+```
+
+https://medium.com/@mjkool/metrics-server-in-kubernetes-0ba52352ddcd
+https://sleeplessbeastie.eu/2023/12/06/how-to-install-metrics-server/
+https://github.com/kubernetes-sigs/metrics-server
+
+---
+
+### VPA
+
 ## CI/CD + GitOps Tasks
 
 ## Logging & Monitoring
