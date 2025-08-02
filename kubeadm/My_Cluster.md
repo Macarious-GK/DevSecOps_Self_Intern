@@ -451,11 +451,134 @@ https://github.com/kubernetes-sigs/metrics-server
 
 ## CI/CD + GitOps Tasks
 
+## Jenkins use Kubernets pods as agents
+- Prerequisite
+  - Setup a kubeadm cluster and expose the control plan url 
+  - First Install Kubernetes plugin in jenkins
+- Steps
+  - `[Jenkins Controller]`:: Choose configure cloud --> Kubernetes
+  - `[Jenkins Controller]`:: Copy Kubernetes server ca.crt to configuration
+  - `[Jenkins Controller]`:: Put control plane URL, Namespace
+  - `[Jenkins Controller]`:: Choose WebSocket Connection between pods --> Jenkins
+  - `[Kubernetes Server]`:: create a namespace for jenkins
+  - `[Kubernetes Server]`:: Create Service account & Token
+  - `[Kubernetes Server]`:: Create Role & Rolebinding for this serviceaccount 
+  - `[Kubernetes Server]`:: Give the sufficient permissions for the role so jenkins agent can perform its tasks 
+```yaml
+# ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins-serviceaccount
+  namespace: jenkins
+
+---
+# ServiceAccount Secret Token
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jenkins-service-account-token
+  annotations:
+    kubernetes.io/service-account.name: jenkins-serviceaccount
+type: kubernetes.io/service-account-token
+
+---
+# role.yaml
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: Role
+# metadata:
+#   name: jenkins-role
+#   namespace: jenkins
+# rules:
+# - apiGroups: [""]
+#   resources: ["pods", "services", "endpoints", "persistentvolumeclaims"]
+#   verbs: ["get", "watch", "list", "create", "delete"]
+# - apiGroups: ["apps"]
+#   resources: ["deployments", "replicasets"]
+#   verbs: ["get", "watch", "list", "create", "delete"]
+# - apiGroups: ["batch"]
+#   resources: ["jobs", "cronjobs"]
+#   verbs: ["get", "watch", "list", "create", "delete"]
+
+---
+# rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-binding
+  namespace: jenkins
+subjects:
+- kind: ServiceAccount
+  name: jenkins-serviceaccount  
+roleRef:
+  kind: ClusterRole
+  name: admin
+  apiGroup: rbac.authorization.k8s.io
+```
+
+```bash
+kubectl cluster-info
+kubectl create ns jenkins
+kubectl create serviceaccount jenkins --namespace=jenkins
+kubectl get secret jenkins-service-account-token -o jsonpath='{.data.token}' | base64 --decode
+kubectl create rolebinding jenkins-admin-binding --clusterrole=admin --serviceaccount=jenkins:jenkins --namespace=jenkins
+```
+---
+
 ## Logging & Monitoring
 
 ## policy enforcement kubernetes
 
 ## Accessing Private Container Registry with imagePullSecrets
+```bash
+kubectl create secret docker-registry regcred \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=username \
+  --docker-password=pass \
+  --docker-email=emai@.com
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hostname-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hostname-web 
+  template:
+    metadata:
+      labels:
+        app: hostname-web
+    spec:
+      containers:
+      - name: hostname-web
+        image: macarious25siv/private-docker-repo:python-pod-name-app
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hostname-web
+spec:
+  selector:
+    app: hostname-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30255
+  type: NodePort
+
+```
+https://earthly.dev/blog/private-docker-registry/
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-a-private-docker-registry-on-ubuntu-22-04
 
 ## Disaster Recovery & Backup
 
