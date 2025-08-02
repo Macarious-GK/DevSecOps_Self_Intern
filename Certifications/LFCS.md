@@ -8,7 +8,7 @@
 - [Networking](#networking)
 - [Storage](#storage)
 - [CLI Commands](#cli-commands)
-- [Notes](#notes)
+- [Exams](#exams)
 
 ## Curriculum
 > - Essential Commands **20%**
@@ -1218,44 +1218,15 @@ ls -Z /bin/sudo
 chcon -t httpd_sys_content_t /var/index.html
 sudo setenforce 0
 sudo restorecon -R /var/log/
-## Notes
 ```
 
 
 
-18 --> to do LFCS ✅ + 
-19 --> to do LFCS ✅
-20 --> to do Jenkins Pipelines 0  N
-21 --> to do Jenkins Pipelines 1 ✅
-22 --> to do Jenkins Pipelines 2 ✅
-23 --> to do Jenkins Pipelines 3 ✅
-24 --> to do Jenkins Pipelines 4 ✅
-25 --> to do Jenkins Pipelines 5 ✅
-#-------------------------------------------------------------------
-26 --> to do core1       ✅/ Terrafrom 1  / Interview Preparation 1
-27 --> to do core2       ✅/ Terrafrom 2  / Interview Preparation 2 
-28 --> to do Schedule1   ✅/ Terrafrom 3  / Interview Preparation 3
-29 --> to do Schedule2   ✅/ Terrafrom 4  / Interview Preparation 4
-30 --> to do Schedule3   ✅/ Terrafrom 5  / Interview Preparation 5
-31 --> to do loging      ✅/ Terrafrom 6  / Interview Preparation 6
-01 --> to do app1        ✅/ Ansible 1    / Interview Preparation 7
-02 --> to do app2        / Ansible 2    / Interview Preparation 8
-03 --> to do cluster     / Ansible 3    / Interview Preparation 9
-04 --> to do sec1        / Ansible 4    / Interview Preparation 10
-05 --> to do sec2        / Ansible 5    / Interview Preparation 12
-06 --> to do sec3        / Terrafrom 7  / Interview Preparation 13
-07 --> to do store       / Terrafrom 8  / Interview Preparation 14
-08 --> to do net1        / Terrafrom 9  / Interview Preparation 15
-09 --> to do net2        / Terrafrom 10 / Interview Preparation 16
-10 --> to do net3
-11 --> to do kubeadm
-12 --> to do Helm
-13 --> to do Kustomize
-14 --> to do Troubleshooting
 
 
+# Exams
 
-# Exam 2
+## Exam 2
 ```bash
 # Q1 System Time
 man timedatectl
@@ -1372,7 +1343,7 @@ ip addr show bridge1
 
 ```
 
-# Exam 3
+## Exam 3
 ```bash
 # Q1 Edit Nginx Config
 sudo rm /etc/nginx/sites-enabled/default
